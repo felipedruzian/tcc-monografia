@@ -1,0 +1,51 @@
+Esta seção apresenta uma revisão de trabalhos relacionados que abordam a navegação autônoma e o mapeamento (SLAM) em contextos similares ao proposto. A análise concentra-se em três eixos principais: a otimização de algoritmos para hardware limitado, arquiteturas de processamento distribuído (\textit{cloud/offboard}) e a integração entre percepção visual 3D e navegação 2D.
+
+\section{Navegação com Restrições Computacionais e Otimização}
+
+A implementação de SLAM em hardware embarcado de baixo custo impõe desafios severos. \citeonline{gatesichapakorn2019rosbasedautonomous} propuseram uma implementação de navegação autônoma utilizando o \textit{stack} de navegação do ROS, realizando experimentos comparativos entre um Raspberry Pi 3 (apenas LiDAR 2D) e um Intel NUC (LiDAR + Câmera RGB-D). Os resultados demonstraram que, embora o Raspberry Pi fosse capaz de navegar com LiDAR, o processamento de dados visuais exigiu hardware mais robusto para uma fusão sensorial eficiente. Este trabalho evidencia o gargalo de processamento que a presente pesquisa visa mitigar.
+
+No contexto de processamento inteiramente embarcado (\textit{onboard}), \citeonline{canovas2021onboarddynamicrgbd} propuseram uma abordagem de SLAM visual RGB-D resiliente a ambientes dinâmicos. Embora tenham alcançado resultados robustos na filtragem de objetos móveis, o estudo destaca o alto custo computacional de manter a estimativa de pose e o mapeamento denso simultaneamente na CPU do robô, reforçando a necessidade de investigar alternativas de distribuição de carga.
+
+Para viabilizar o vSLAM em hardware restrito, a otimização de parâmetros é crucial. \citeonline{nagarajan2024multiobjectiveoptimizationrtabmap} investigaram especificamente o algoritmo RTAB-Map (o mesmo selecionado para este trabalho) e propuseram o uso de Algoritmos Genéticos Multiobjetivo (MOGA) para ajustar automaticamente seus parâmetros. O estudo demonstrou que a configuração padrão do software nem sempre oferece o melhor desempenho em cenários \textit{indoor}, evidenciando que o ajuste fino (\textit{tuning}) é uma etapa indispensável para equilibrar a qualidade do mapa e o consumo de recursos.
+
+\section{Arquiteturas Distribuídas e Processamento Offboard}
+
+Uma alternativa às limitações locais é a arquitetura distribuída. \citeonline{zheng2016multiframegraphmatching} apresentaram, inicialmente, um algoritmo de correspondência de grafos para SLAM RGB-D focado em redes com baixa largura de banda. O protótipo, integrando Raspberry Pi e Kinect, demonstrou que estratégias de redução de dados são essenciais para sistemas distribuídos.
+
+Evoluindo este conceito, \citeonline{zheng2020realtimecloudvisual} propuseram um sistema de \textit{Cloud vSLAM} em tempo real. A arquitetura divide o processo em um cliente (robô), responsável pela aquisição e pré-processamento leve (compressão) de imagens, e um servidor em nuvem, encarregado do mapeamento denso e otimização de pose. Os resultados validam a viabilidade técnica da abordagem \textit{offboard} adotada neste trabalho como comparativo, demonstrando que a transferência de computação pode manter a precisão do mapeamento enquanto alivia a carga da CPU local.
+
+\section{Integração de Percepção Visual e Navegação}
+
+Um desafio recorrente no uso de vSLAM é a tradução dos dados 3D para a navegação eficiente. \citeonline{zhang2023rgbdnavigation2d} apresentaram o framework "RGBD Navigation", que propõe uma metodologia para converter nuvens de pontos 3D e mapas de profundidade em varreduras a laser 2D virtuais. Isso permite a integração direta com a pilha de navegação padrão do ROS (\textit{Navigation Stack}). Esta solução oferece um caminho para superar a incompatibilidade entre a percepção visual rica e os planejadores de trajetória 2D, sendo uma referência técnica central para o sistema de navegação aqui proposto.
+
+Validando o uso dessas ferramentas em simulação, \citeonline{kulkarni2021visualslamcombined} utilizaram a biblioteca RTAB-Map integrada ao ROS e ao simulador Gazebo para navegação autônoma combinada com detecção de objetos. O trabalho corrobora a eficácia da pilha de software (ROS + RTAB-Map + Gazebo) como base de desenvolvimento e teste para robótica de serviço, alinhando-se à metodologia adotada nesta pesquisa.
+
+\section{Contexto Institucional e Síntese}
+
+No cenário nacional e institucional, \citeonline{lemos2019plataformaroboticamovel} desenvolveram uma plataforma móvel baseada em Kinect e RTAB-Map, evidenciando as limitações de processadores de baixo consumo para processar nuvens de pontos em tempo real. Mais recentemente, \citeonline{araujo2023atmosbotpropostamodelagem}, em trabalho desenvolvido na mesma instituição deste projeto, propôs o \textit{AtmosBot}, uma modelagem simulada focada na navegação autônoma utilizando sensores LiDAR 2D.
+
+A presente pesquisa avança em relação a \citeonline{araujo2023atmosbotpropostamodelagem} ao propor a transição da percepção baseada em laser (2D) para a visual (3D/RGB-D) e ao introduzir a análise comparativa de arquiteturas de processamento (\textit{onboard} vs. \textit{offboard}) em hardware físico, preenchendo as lacunas de desempenho identificadas na literatura revisada.
+
+A Tabela \ref{tab:trabalhos_correlatos} sintetiza as características dos trabalhos discutidos em relação à proposta atual.
+
+\begin{table}[htb]
+\centering
+\caption{Comparativo entre trabalhos correlatos e a proposta atual.}
+\label{tab:trabalhos_correlatos}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{|p{3.5cm}|p{2.5cm}|p{3cm}|p{5cm}|}
+\hline
+\textbf{Autor/Ano} & \textbf{Sensor Principal} & \textbf{Processamento} & \textbf{Contribuição Principal} \\ \hline
+\citeonline{araujo2023atmosbotpropostamodelagem} & LiDAR 2D & Simulado & Navegação e Modelagem em Gazebo \\ \hline
+\citeonline{gatesichapakorn2019rosbasedautonomous} & LiDAR + RGB-D & Híbrido (Pi + NUC) & Comparação de desempenho entre sensores \\ \hline
+\citeonline{zheng2020realtimecloudvisual} & RGB-D & Nuvem (Offboard) & Arquitetura Cliente-Servidor para vSLAM \\ \hline
+\citeonline{lemos2019plataformaroboticamovel} & RGB-D & Onboard (x86) & Limitações de hardware em plataforma móvel \\ \hline
+\citeonline{canovas2021onboarddynamicrgbd} & RGB-D & Onboard & Robustez em ambientes dinâmicos \\ \hline
+\citeonline{nagarajan2024multiobjectiveoptimizationrtabmap} & RGB-D & Onboard & Otimização de parâmetros do RTAB-Map \\ \hline
+\citeonline{zhang2023rgbdnavigation2d} & RGB-D & Onboard & Integração vSLAM com Navegação 2D \\ \hline
+\citeonline{kulkarni2021visualslamcombined} & RGB-D & Simulado (ROS) & Validação do RTAB-Map em Gazebo \\ \hline
+\textbf{Proposta Atual} & \textbf{RGB-D} & \textbf{Onboard vs. Offboard} & \textbf{Análise de desempenho em CPU ARM} \\ \hline
+\end{tabular}
+}
+\fonte{Elaborado pelo autor.}
+\end{table}
