@@ -1,30 +1,34 @@
-Esta seção apresenta uma revisão de trabalhos relacionados que abordam a navegação autônoma e o mapeamento (SLAM) em contextos similares ao proposto. A análise concentra-se em três eixos principais: a otimização de algoritmos para hardware limitado, arquiteturas de processamento distribuído (\textit{cloud/offboard}) e a integração entre percepção visual 3D e navegação 2D.
+Esta seção apresenta uma revisão de trabalhos relacionados que abordam SLAM visual, robótica móvel de baixo custo, sensores RGB-D e integração de sistemas robóticos em contextos próximos ao proposto. A análise concentra-se no desafio de executar percepção visual e mapeamento em hardware limitado, mantendo a coerência entre sensores, odometria e software de integração.
 
-\section{Navegação com Restrições Computacionais e Otimização}
+\section{SLAM Visual e Hardware Embarcado}
 
-A implementação de SLAM em hardware embarcado de baixo custo impõe desafios severos. \citeonline{gatesichapakorn2019rosbasedautonomous} propuseram uma implementação de navegação autônoma utilizando o \textit{stack} de navegação do ROS, realizando experimentos comparativos entre um Raspberry Pi 3 (apenas LiDAR 2D) e um Intel NUC (LiDAR + Câmera RGB-D). Os resultados demonstraram que, embora o Raspberry Pi fosse capaz de navegar com LiDAR, o processamento de dados visuais exigiu hardware mais robusto para uma fusão sensorial eficiente. Este trabalho evidencia o gargalo de processamento que a presente pesquisa visa mitigar.
+A implementação de SLAM em hardware embarcado de baixo custo impõe desafios severos. \citeonline{gatesichapakorn2019rosbasedautonomous} propuseram uma implementação de navegação autônoma utilizando o \textit{stack} de navegação do ROS, realizando experimentos comparativos entre um Raspberry Pi 3, empregado com LiDAR 2D, e um Intel NUC, empregado com LiDAR e câmera RGB-D. Os resultados demonstraram que, embora o Raspberry Pi fosse capaz de sustentar cenários mais simples, o processamento de dados visuais exigiu hardware mais robusto para uma fusão sensorial eficiente. Esse resultado evidencia o gargalo de processamento enfrentado por plataformas de baixo custo.
 
-No contexto de processamento inteiramente embarcado (\textit{onboard}), \citeonline{canovas2021onboarddynamicrgbd} propuseram uma abordagem de SLAM visual RGB-D resiliente a ambientes dinâmicos. Embora tenham alcançado resultados robustos na filtragem de objetos móveis, o estudo destaca o alto custo computacional de manter a estimativa de pose e o mapeamento denso simultaneamente na CPU do robô, reforçando a necessidade de investigar alternativas de distribuição de carga.
+No contexto de processamento inteiramente embarcado (\textit{onboard}), \citeonline{canovas2021onboarddynamicrgbd} propuseram uma abordagem de SLAM visual RGB-D resiliente a ambientes dinâmicos. Embora tenham alcançado resultados robustos na filtragem de objetos móveis, o estudo destaca o alto custo computacional de manter a estimativa de pose e o mapeamento denso simultaneamente na CPU do robô. Essa limitação reforça a necessidade de avaliar cuidadosamente frequência, resolução, parâmetros do algoritmo e estabilidade térmica quando o processamento ocorre no próprio robô.
 
-Para viabilizar o vSLAM em hardware restrito, a otimização de parâmetros é crucial. \citeonline{nagarajan2024multiobjectiveoptimizationrtabmap} investigaram especificamente o algoritmo RTAB-Map (o mesmo selecionado para este trabalho) e propuseram o uso de Algoritmos Genéticos Multiobjetivo (MOGA) para ajustar automaticamente seus parâmetros. O estudo demonstrou que a configuração padrão do software nem sempre oferece o melhor desempenho em cenários \textit{indoor}, evidenciando que o ajuste fino (\textit{tuning}) é uma etapa indispensável para equilibrar a qualidade do mapa e o consumo de recursos.
+Para viabilizar o vSLAM em hardware restrito, a otimização de parâmetros é crucial. \citeonline{nagarajan2024multiobjectiveoptimizationrtabmap} investigaram especificamente o algoritmo RTAB-Map, também selecionado neste trabalho, e propuseram o uso de Algoritmos Genéticos Multiobjetivo (MOGA) para ajustar automaticamente seus parâmetros. O estudo demonstrou que a configuração padrão do software nem sempre oferece o melhor desempenho em cenários \textit{indoor}, evidenciando que o ajuste fino (\textit{tuning}) é uma etapa indispensável para equilibrar qualidade do mapa e consumo de recursos.
 
-\section{Arquiteturas Distribuídas e Processamento Offboard}
+\section{Sensores RGB-D, Odometria e Fusão Sensorial}
 
-Uma alternativa às limitações locais é a arquitetura distribuída. \citeonline{zheng2016multiframegraphmatching} apresentaram, inicialmente, um algoritmo de correspondência de grafos para SLAM RGB-D focado em redes com baixa largura de banda. O protótipo, integrando Raspberry Pi e Kinect, demonstrou que estratégias de redução de dados são essenciais para sistemas distribuídos.
+O uso de câmeras RGB-D em robótica móvel de baixo custo é atrativo porque fornece, simultaneamente, cor e profundidade, permitindo a construção de mapas 3D sem sensores LiDAR de maior custo. Entretanto, essa escolha introduz limitações práticas, como alcance reduzido, sensibilidade à iluminação, campo de visão restrito e elevado volume de dados. \citeonline{kamarudin2015improvingperformance2d} demonstram que sensores RGB-D podem apresentar desempenho inferior a LiDARs em determinados cenários, especialmente quando o ambiente possui poucas características visuais ou exige alcance maior.
 
-Evoluindo este conceito, \citeonline{zheng2020realtimecloudvisual} propuseram um sistema de \textit{Cloud vSLAM} em tempo real. A arquitetura divide o processo em um cliente (robô), responsável pela aquisição e pré-processamento leve (compressão) de imagens, e um servidor em nuvem, encarregado do mapeamento denso e otimização de pose. Os resultados validam a viabilidade técnica da abordagem \textit{offboard} adotada neste trabalho como comparativo, demonstrando que a transferência de computação pode manter a precisão do mapeamento enquanto alivia a carga da CPU local.
+Além da percepção visual, a qualidade da odometria é determinante para a estabilidade do SLAM. Sistemas RGB-D podem perder rastreamento quando há movimentos bruscos, superfícies pouco texturizadas ou inconsistência entre a movimentação real e a estimativa inicial de pose. Nesse contexto, \citeonline{qayyum2017imuaidedrgbd} discutem o uso de informação inercial para auxiliar sistemas RGB-D, indicando que a fusão entre IMU e visão pode contribuir para maior robustez em situações de movimento rápido ou ruído visual.
 
-\section{Integração de Percepção Visual e Navegação}
+Esses trabalhos fundamentam a estratégia adotada nesta pesquisa: tratar a câmera RGB-D como sensor principal de mapeamento, mas avaliar também a coerência da odometria das rodas e da IMU como fatores que influenciam diretamente a estabilidade do RTAB-Map no robô físico.
 
-Um desafio recorrente no uso de vSLAM é a tradução dos dados 3D para a navegação eficiente. \citeonline{zhang2023rgbdnavigation2d} apresentaram o framework "RGBD Navigation", que propõe uma metodologia para converter nuvens de pontos 3D e mapas de profundidade em varreduras a laser 2D virtuais. Isso permite a integração direta com a pilha de navegação padrão do ROS (\textit{Navigation Stack}). Esta solução oferece um caminho para superar a incompatibilidade entre a percepção visual rica e os planejadores de trajetória 2D, sendo uma referência técnica central para o sistema de navegação aqui proposto.
+\section{Integração entre Percepção Visual e Navegação}
 
-Validando o uso dessas ferramentas em simulação, \citeonline{kulkarni2021visualslamcombined} utilizaram a biblioteca RTAB-Map integrada ao ROS e ao simulador Gazebo para navegação autônoma combinada com detecção de objetos. O trabalho corrobora a eficácia da pilha de software (ROS + RTAB-Map + Gazebo) como base de desenvolvimento e teste para robótica de serviço, alinhando-se à metodologia adotada nesta pesquisa.
+Um desafio recorrente no uso de vSLAM é a tradução dos dados 3D para estruturas úteis à navegação. \citeonline{zhang2023rgbdnavigation2d} apresentaram o \textit{framework} ``RGBD Navigation'', que propõe converter nuvens de pontos 3D e mapas de profundidade em varreduras a laser 2D virtuais. Isso permite a integração direta com pilhas de navegação baseadas em mapas de ocupação, oferecendo um caminho para aproximar percepção visual rica e planejadores de trajetória 2D.
+
+Validando o uso dessas ferramentas em ambiente controlado, \citeonline{kulkarni2021visualslamcombined} utilizaram a biblioteca RTAB-Map integrada ao ROS e ao simulador Gazebo para navegação autônoma combinada com detecção de objetos. Embora a simulação não faça parte do eixo de validação desta versão do trabalho, esse estudo é relevante por demonstrar a integração entre RTAB-Map, ROS e tarefas de navegação em uma arquitetura robótica completa.
+
+Funcionalidades de navegação autônoma completa, como planejamento de trajetórias e desvio de obstáculos com Nav2, permanecem como continuidade possível para esta pesquisa. A etapa atual, porém, concentra-se primeiro em consolidar o mapeamento, a localização e a estabilidade do pipeline sensorial no robô físico.
 
 \section{Contexto Institucional e Síntese}
 
 No cenário nacional e institucional, \citeonline{lemos2019plataformaroboticamovel} desenvolveram uma plataforma móvel baseada em Kinect e RTAB-Map, evidenciando as limitações de processadores de baixo consumo para processar nuvens de pontos em tempo real. Mais recentemente, \citeonline{araujo2023atmosbotpropostamodelagem}, em trabalho desenvolvido na mesma instituição deste projeto, propôs o \textit{AtmosBot}, uma modelagem simulada focada na navegação autônoma utilizando sensores LiDAR 2D.
 
-A presente pesquisa avança em relação a \citeonline{araujo2023atmosbotpropostamodelagem} ao propor a transição da percepção baseada em laser (2D) para a visual (3D/RGB-D) e ao introduzir a análise comparativa de arquiteturas de processamento (\textit{onboard} vs. \textit{offboard}) em hardware físico, preenchendo as lacunas de desempenho identificadas na literatura revisada.
+A presente pesquisa diferencia-se desses trabalhos ao priorizar a integração física de uma plataforma robótica de baixo custo com percepção RGB-D, controle embarcado, IMU, odometria e ROS 2. Em relação ao trabalho institucional baseado em LiDAR 2D, o avanço está na transição para percepção visual 3D em hardware real. Em relação aos estudos de SLAM visual em hardware mais robusto, a contribuição está em documentar os limites e ajustes necessários para operar com Raspberry Pi e componentes acessíveis.
 
 A Tabela \ref{tab:trabalhos_correlatos} sintetiza as características dos trabalhos discutidos em relação à proposta atual.
 
@@ -35,16 +39,15 @@ A Tabela \ref{tab:trabalhos_correlatos} sintetiza as características dos trabal
 \resizebox{\textwidth}{!}{%
 \begin{tabular}{|p{3.5cm}|p{2.5cm}|p{3cm}|p{5cm}|}
 \hline
-\textbf{Autor/Ano} & \textbf{Sensor Principal} & \textbf{Processamento} & \textbf{Contribuição Principal} \\ \hline
-\citeonline{araujo2023atmosbotpropostamodelagem} & LiDAR 2D & Simulado & Navegação e Modelagem em Gazebo \\ \hline
-\citeonline{gatesichapakorn2019rosbasedautonomous} & LiDAR + RGB-D & Híbrido (Pi + NUC) & Comparação de desempenho entre sensores \\ \hline
-\citeonline{zheng2020realtimecloudvisual} & RGB-D & Nuvem (Offboard) & Arquitetura Cliente-Servidor para vSLAM \\ \hline
-\citeonline{lemos2019plataformaroboticamovel} & RGB-D & Onboard (x86) & Limitações de hardware em plataforma móvel \\ \hline
-\citeonline{canovas2021onboarddynamicrgbd} & RGB-D & Onboard & Robustez em ambientes dinâmicos \\ \hline
-\citeonline{nagarajan2024multiobjectiveoptimizationrtabmap} & RGB-D & Onboard & Otimização de parâmetros do RTAB-Map \\ \hline
-\citeonline{zhang2023rgbdnavigation2d} & RGB-D & Onboard & Integração vSLAM com Navegação 2D \\ \hline
-\citeonline{kulkarni2021visualslamcombined} & RGB-D & Simulado (ROS) & Validação do RTAB-Map em Gazebo \\ \hline
-\textbf{Proposta Atual} & \textbf{RGB-D} & \textbf{Onboard vs. Offboard} & \textbf{Análise de desempenho em CPU ARM} \\ \hline
+\textbf{Autor/Ano} & \textbf{Sensor Principal} & \textbf{Contexto} & \textbf{Contribuição Principal} \\ \hline
+\citeonline{araujo2023atmosbotpropostamodelagem} & LiDAR 2D & Simulação & Navegação e modelagem robótica em Gazebo \\ \hline
+\citeonline{gatesichapakorn2019rosbasedautonomous} & LiDAR + RGB-D & Robô físico & Comparação de desempenho entre sensores e plataformas \\ \hline
+\citeonline{lemos2019plataformaroboticamovel} & RGB-D & Robô físico & Limitações de hardware em plataforma móvel com RTAB-Map \\ \hline
+\citeonline{canovas2021onboarddynamicrgbd} & RGB-D & Robô físico & SLAM visual embarcado em ambientes dinâmicos \\ \hline
+\citeonline{nagarajan2024multiobjectiveoptimizationrtabmap} & RGB-D & Avaliação de algoritmo & Otimização de parâmetros do RTAB-Map \\ \hline
+\citeonline{zhang2023rgbdnavigation2d} & RGB-D & Integração de software & Conversão de percepção RGB-D para navegação 2D \\ \hline
+\citeonline{kulkarni2021visualslamcombined} & RGB-D & Simulação ROS/Gazebo & Integração entre RTAB-Map, ROS e navegação \\ \hline
+\textbf{Proposta Atual} & \textbf{RGB-D + IMU} & \textbf{Robô físico de baixo custo} & \textbf{Integração e avaliação de SLAM visual embarcado em Raspberry Pi} \\ \hline
 \end{tabular}
 }
 \fonte{Elaborado pelo autor.}
