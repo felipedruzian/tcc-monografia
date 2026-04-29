@@ -1,30 +1,62 @@
-Este capítulo apresenta a estrutura prevista para consolidação dos resultados experimentais do TCC II. Como os testes com o robô físico ainda estão em andamento, os resultados quantitativos e evidências finais serão incorporados conforme a execução dos experimentos for concluída. Para evitar conclusões antecipadas, os pontos que ainda dependem de coleta ou análise são explicitamente marcados como pendentes.
+Este capítulo organiza os resultados esperados e as perspectivas de validação experimental do TCC II. Como os ensaios no robô físico ainda estão em andamento, esta versão não antecipa métricas finais, mapas consolidados ou conclusões quantitativas. O objetivo do capítulo, nesta entrega parcial, é explicitar quais evidências serão usadas para avaliar o pipeline de SLAM embarcado e como elas serão relacionadas aos objetivos do trabalho.
 
-\section{Estado atual da integração}
+\section{Estado da Avaliação Experimental}
 
-Até esta etapa, a plataforma física foi estabelecida como o principal ambiente de validação do trabalho. O robô integra o Raspberry Pi, a câmera RGB-D, a comunicação com o Arduino Nano e os componentes necessários para publicação de dados no ROS 2. A avaliação atual concentra-se em verificar se a cadeia de tópicos, odometria, transformações de coordenadas e execução do RTAB-Map permanece estável durante testes reais de movimentação.
+A avaliação do trabalho está centrada no protótipo físico. A plataforma integra Raspberry Pi, câmera RGB-D, Arduino Nano, atuadores, sensores auxiliares e os nós ROS 2 necessários para aquisição de dados, publicação de odometria, manutenção das transformações de coordenadas e execução do RTAB-Map. A etapa experimental busca verificar se essa cadeia permanece estável durante movimentação real em ambiente interno.
 
-\noindent\textbf{Evidência pendente:} consolidar logs e registros dos testes atuais com o robô físico.
+Nesta entrega, considera-se consolidada a estrutura de avaliação, mas não os resultados finais. Assim, logs, mapas, capturas e tabelas derivados dos ensaios serão incorporados somente após a conclusão e conferência das baterias de teste.
 
-\section{Critérios de avaliação}
+\section{Evidências Previstas}
+
+As evidências previstas para a versão final serão organizadas em quatro grupos:
+
+\begin{enumerate}
+    \item \textbf{Evidências de integração:} presença e estabilidade dos tópicos de câmera RGB-D, IMU, odometria, comandos de velocidade e transformações TF.
+    \item \textbf{Evidências de execução:} registros de inicialização dos nós, execução do percurso, ocorrência de falhas e encerramento controlado dos testes.
+    \item \textbf{Evidências de mapeamento:} mapas gerados pelo RTAB-Map, coerência visual do ambiente reconstruído, continuidade da trajetória estimada e ocorrência de perda de pose.
+    \item \textbf{Evidências de ajuste do pipeline:} comparação entre configurações antes e depois de correções de odometria, parâmetros de sincronização ou fusão sensorial.
+\end{enumerate}
+
+\section{Critérios de Análise}
 
 Os resultados serão discutidos a partir de critérios compatíveis com o objetivo do trabalho:
 
 \begin{itemize}
-    \item estabilidade da estimativa de pose durante o deslocamento;
-    \item ocorrência de perda de pose ou falhas de rastreamento;
-    \item coerência entre odometria, IMU e transformações publicadas no ROS 2;
-    \item qualidade visual e estrutural do mapa gerado;
-    \item taxa de processamento observada durante a execução;
-    \item impacto de ajustes no pipeline, incluindo a fusão de odometria das rodas e IMU.
+    \item estabilidade da estimativa de pose durante o deslocamento do robô;
+    \item coerência entre odometria das rodas, dados de IMU e transformações publicadas;
+    \item qualidade visual e estrutural do mapa produzido;
+    \item taxa de publicação e processamento dos tópicos relevantes;
+    \item ocorrência de mensagens de erro, perda de rastreamento ou interrupções do pipeline;
+    \item efeito de ajustes de odometria e fusão sensorial sobre a estabilidade do SLAM.
 \end{itemize}
 
-\noindent\textbf{Resultado a consolidar:} definir tabela comparativa com métricas antes e depois dos ajustes de odometria/fusão sensorial.
+Esses critérios combinam análise quantitativa e qualitativa. A análise quantitativa deverá utilizar taxas, contagens de eventos, tamanhos de artefatos e medições de processamento quando disponíveis. A análise qualitativa deverá observar a coerência do mapa, a plausibilidade da trajetória e a correspondência entre o comportamento observado do robô e os dados registrados.
 
-\section{Discussão preliminar}
+\section{Tabela de Consolidação Planejada}
 
-A principal hipótese técnica desta etapa é que a viabilidade do SLAM visual embarcado não depende apenas da capacidade bruta de processamento do Raspberry Pi, mas também da qualidade da odometria, da consistência das transformações entre referenciais e da configuração dos parâmetros do RTAB-Map. Assim, a análise deve considerar tanto métricas computacionais quanto evidências de estabilidade do sistema integrado.
+A versão final deverá sintetizar as baterias de teste em uma tabela com a seguinte estrutura:
 
-O uso de funcionalidades de navegação completas, como planejamento com Nav2, permanece como continuidade possível após a consolidação do mapeamento e da localização. Nesta versão do trabalho, porém, a navegação completa não substitui a avaliação principal do pipeline de SLAM embarcado.
+\begin{table}[H]
+\centering
+\caption{Estrutura prevista para consolidação dos resultados experimentais.}
+\label{tab:estrutura-resultados-planejada}
+\begin{tabular}{p{3.1cm} p{3.3cm} p{3.8cm} p{3.5cm}}
+\hline
+\textbf{Cenário} & \textbf{Evidência} & \textbf{Critério analisado} & \textbf{Status na entrega parcial} \\
+\hline
+Integração sensorial & Tópicos e frequências & Estabilidade da cadeia de dados & A consolidar \\
+Execução do SLAM & Logs e banco do RTAB-Map & Continuidade do mapeamento & A consolidar \\
+Ajustes de odometria & Comparação entre configurações & Impacto na pose e no mapa & A consolidar \\
+Limitações observadas & Mensagens e falhas registradas & Restrições do pipeline & A consolidar \\
+\hline
+\end{tabular}
+\fonte{Autor (2025).}
+\end{table}
 
-\noindent\textbf{Pendente:} inserir discussão baseada nos testes finais e nas evidências documentadas.
+A tabela acima não apresenta resultados experimentais finais; ela define apenas o formato de organização que será preenchido após a validação dos artefatos de teste.
+
+\section{Perspectiva de Discussão}
+
+A discussão parcial parte da hipótese de que a viabilidade do SLAM visual embarcado não depende apenas da capacidade de processamento do Raspberry Pi. A estabilidade do sistema também depende da qualidade da odometria, da consistência das transformações, da sincronização entre fluxos sensoriais e da configuração do RTAB-Map. Por isso, a análise final deverá relacionar falhas de mapeamento não apenas ao algoritmo de SLAM, mas ao conjunto integrado de hardware e software.
+
+Funcionalidades de navegação completa, como planejamento de trajetórias com Nav2, permanecem como continuidade possível após a estabilização do mapeamento e da localização. Nesta versão do trabalho, elas não substituem a avaliação principal do pipeline de SLAM embarcado.
