@@ -116,7 +116,7 @@ A integração da câmera RGB-D (Kinect v1) exigiu a configuração de regras de
     \fonte{Autor (2025).}
 \end{figure}
 
-Um dos principais riscos do uso de vSLAM em SBCs (\textit{Single Board Computers}) é a sobrecarga da CPU durante a aquisição de imagens. Para verificar esse gargalo, monitorou-se a taxa de quadros localmente no Raspberry Pi. Conforme demonstra a Figura \ref{fig:hz_local}, o sistema manteve uma taxa estável de aproximadamente 30.03 Hz (limite físico do sensor), comprovando que o hardware selecionado possui capacidade de processamento suficiente para a etapa de aquisição de dados sem perda de \textit{frames}.
+Um dos principais desafios do uso de vSLAM em SBCs (\textit{Single Board Computers}) é a sobrecarga da CPU e do barramento USB durante a aquisição de imagens. Conforme demonstra a Figura \ref{fig:hz_local}, em testes isolados de aquisição, o sistema atingiu a taxa nominal de aproximadamente 30.03 Hz. No entanto, a manutenção dessa taxa de forma sincronizada para fluxos simultâneos de RGB e profundidade revelou-se instável durante a execução conjunta de outros nós do sistema, evidenciando a necessidade de otimização no transporte de dados para evitar perdas de quadros que degradem a qualidade do SLAM.
 
 \begin{figure}[H]
     \centering
@@ -211,11 +211,11 @@ A qualidade da reconstrução 3D do ambiente pode ser observada na Figura \ref{f
 
 O desenvolvimento do protótipo físico atingiu o objetivo de estabelecer um MVP (\textit{Minimum Viable Product}) funcional de robótica móvel. No entanto, como previsto na metodologia incremental, o sistema encontra-se em estágio intermediário.
 
-As principais limitações identificadas nesta etapa, que definem o escopo do Trabalho de Conclusão de Curso II (TCC II), incluem:
+As principais limitações identificadas nesta etapa, que consolidam os desafios do Trabalho de Conclusão de Curso II (TCC II), incluem:
 \begin{itemize}
-    \item \textbf{SLAM Embarcado:} A execução estável de algoritmos de mapeamento visual no Raspberry Pi requer otimizações de software e ajustes finos de parâmetros que não foram concluídos nesta fase;
-    \item \textbf{Autonomia de Navegação:} A pilha de navegação (\textit{Nav2}) para planejamento de trajetória e desvio de obstáculos ainda não foi integrada ao controle de baixo nível, permanecendo como continuidade futura após a estabilização do mapeamento e da localização;
-    \item \textbf{Evidências Experimentais:} A consolidação final das métricas de SLAM, incluindo perda de pose, estabilidade do mapa e comparação antes/depois de ajustes de odometria, ainda depende da conclusão dos ensaios controlados.
+    \item \textbf{Estabilidade do Sensor RGB-D:} A aquisição simultânea de dados de imagem e profundidade no Kinect v1 via USB 2.0 do Raspberry Pi apresenta instabilidades aleatórias de sincronização e queda de taxa de quadros, constituindo um dos principais gargalos técnicos do projeto;
+    \item \textbf{SLAM Embarcado:} A execução estável de algoritmos de mapeamento visual no Raspberry Pi requer otimizações rigorosas para evitar a saturação da CPU, o que impacta diretamente na frequência de atualização do mapa;
+    \item \textbf{Autonomia de Navegação:} Devido às restrições de processamento, a pilha de navegação (\textit{Nav2}) para planejamento de trajetória é tratada como continuidade futura, priorizando-se nesta fase a estabilização da localização e do mapeamento.
 \end{itemize}
 
-Apesar destas lacunas, a contribuição desta etapa é significativa: consolidou-se uma plataforma de baixo custo com \textit{drivers} funcionais, comunicação entre componentes validada, sensores operacionais e integração de hardware suficiente para os experimentos de SLAM visual. Esta base reduz substancialmente o risco técnico do projeto e habilita a execução dos testes sistemáticos propostos na metodologia.
+Apesar destas restrições, a contribuição desta etapa é significativa: consolidou-se uma plataforma de baixo custo com \textit{drivers} funcionais, comunicação entre componentes validada e integração de hardware suficiente para os experimentos de SLAM visual propostos. Esta base permite discutir empiricamente os limites do hardware embarcado frente às demandas de processamento sensorial em tempo real.

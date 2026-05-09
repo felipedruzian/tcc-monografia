@@ -1,62 +1,43 @@
-Este capítulo organiza os resultados esperados e as perspectivas de validação experimental do TCC II. Como os ensaios no robô físico ainda estão em andamento, esta versão não antecipa métricas finais, mapas consolidados ou conclusões quantitativas. O objetivo do capítulo, nesta entrega parcial, é explicitar quais evidências serão usadas para avaliar o pipeline de SLAM embarcado e como elas serão relacionadas aos objetivos do trabalho.
+Este capítulo organiza o estado da validação experimental da plataforma robótica e as discussões parciais sobre o pipeline de SLAM visual embarcado no robô físico. A análise considera as restrições de processamento do Raspberry Pi, a estabilidade dos fluxos sensoriais e os pontos que ainda precisam de evidência antes de uma conclusão quantitativa definitiva.
 
-\section{Estado da Avaliação Experimental}
+\section{Análise do Pipeline Sensorial e o Desafio da Sincronização}
 
-A avaliação do trabalho está centrada no protótipo físico. A plataforma integra Raspberry Pi, câmera RGB-D, Arduino Nano, atuadores, sensores auxiliares e os nós ROS 2 necessários para aquisição de dados, publicação de odometria, manutenção das transformações de coordenadas e execução do RTAB-Map. A etapa experimental busca verificar se essa cadeia permanece estável durante movimentação real em ambiente interno.
+A integração dos sensores no Raspberry Pi 4 sob o ROS 2 Jazzy permitiu observar comportamentos críticos para a viabilidade do SLAM visual. Embora testes isolados tenham indicado funcionamento de IMU, odometria e aquisição do Kinect, a execução simultânea de RGB e profundidade revelou um gargalo importante.
 
-Nesta entrega, considera-se consolidada a estrutura de avaliação, mas não os resultados finais. Assim, logs, mapas, capturas e tabelas derivados dos ensaios serão incorporados somente após a conclusão e conferência das baterias de teste.
+A aquisição sincronizada de dados RGB e profundidade do Kinect v1 constitui o principal ``gate'' técnico do projeto. Observou-se que a carga no barramento USB 2.0 e o processamento de imagens competem por recursos do sistema, resultando em instabilidades na publicação simultânea dos tópicos. Essa instabilidade impacta diretamente o RTAB-Map, que depende da correspondência temporal entre imagem, profundidade e demais referenciais para o processamento da odometria visual e do mapeamento.
 
-\section{Evidências Previstas}
+\section{Evidências Experimentais e Discussão}
 
-As evidências previstas para a versão final serão organizadas em quatro grupos:
+As evidências a consolidar durante os ensaios no ambiente de teste são organizadas em quatro grupos:
 
 \begin{enumerate}
-    \item \textbf{Evidências de integração:} presença e estabilidade dos tópicos de câmera RGB-D, IMU, odometria, comandos de velocidade e transformações TF.
-    \item \textbf{Evidências de execução:} registros de inicialização dos nós, execução do percurso, ocorrência de falhas e encerramento controlado dos testes.
-    \item \textbf{Evidências de mapeamento:} mapas gerados pelo RTAB-Map, coerência visual do ambiente reconstruído, continuidade da trajetória estimada e ocorrência de perda de pose.
-    \item \textbf{Evidências de ajuste do pipeline:} comparação entre configurações antes e depois de correções de odometria, parâmetros de sincronização ou fusão sensorial.
+    \item \textbf{Estabilidade de Integração:} análise da frequência e latência dos tópicos de percepção sob carga de processamento do SLAM.
+    \item \textbf{Desempenho da Odometria e Transformações:} avaliação da consistência entre a odometria das rodas, os dados da IMU e as transformações de coordenadas (TF).
+    \item \textbf{Qualidade do Mapeamento:} inspeção visual e geométrica dos mapas gerados pelo RTAB-Map, identificando deformações ou falhas de continuidade.
+    \item \textbf{Limitações de Hardware:} registro de ocorrências de perda de rastreamento visual causadas por quedas de taxa de quadros ou saturação de CPU.
 \end{enumerate}
 
-\section{Critérios de Análise}
+A discussão parcial indica que, para hardware restrito, a viabilidade do SLAM não depende apenas do algoritmo, mas da robustez da cadeia de aquisição de dados. A instabilidade do sensor RGB-D, quando não tratada por mecanismos de priorização, redução de resolução ou ajuste de sincronização, atua como fator limitante para a construção de mapas em trajetórias longas.
 
-Os resultados serão discutidos a partir de critérios compatíveis com o objetivo do trabalho:
+\section{Consolidação dos Resultados}
 
-\begin{itemize}
-    \item estabilidade da estimativa de pose durante o deslocamento do robô;
-    \item coerência entre odometria das rodas, dados de IMU e transformações publicadas;
-    \item qualidade visual e estrutural do mapa produzido;
-    \item taxa de publicação e processamento dos tópicos relevantes;
-    \item ocorrência de mensagens de erro, perda de rastreamento ou interrupções do pipeline;
-    \item efeito de ajustes de odometria e fusão sensorial sobre a estabilidade do SLAM.
-\end{itemize}
-
-Esses critérios combinam análise quantitativa e qualitativa. A análise quantitativa deverá utilizar taxas, contagens de eventos, tamanhos de artefatos e medições de processamento quando disponíveis. A análise qualitativa deverá observar a coerência do mapa, a plausibilidade da trajetória e a correspondência entre o comportamento observado do robô e os dados registrados.
-
-\section{Tabela de Consolidação Planejada}
-
-A versão final deverá sintetizar as baterias de teste em uma tabela com a seguinte estrutura:
+O estado atual das observações e pendências é sintetizado na Tabela \ref{tab:consolidacao-resultados}.
 
 \begin{table}[H]
 \centering
-\caption{Estrutura prevista para consolidação dos resultados experimentais.}
-\label{tab:estrutura-resultados-planejada}
+\caption{Consolidação parcial das observações experimentais.}
+\label{tab:consolidacao-resultados}
 \begin{tabular}{p{3.1cm} p{3.3cm} p{3.8cm} p{3.5cm}}
 \hline
-\textbf{Cenário} & \textbf{Evidência} & \textbf{Critério analisado} & \textbf{Status na entrega parcial} \\
+\textbf{Cenário} & \textbf{Evidência} & \textbf{Critério analisado} & \textbf{Estado atual} \\
 \hline
-Integração sensorial & Tópicos e frequências & Estabilidade da cadeia de dados & A consolidar \\
-Execução do SLAM & Logs e banco do RTAB-Map & Continuidade do mapeamento & A consolidar \\
-Ajustes de odometria & Comparação entre configurações & Impacto na pose e no mapa & A consolidar \\
-Limitações observadas & Mensagens e falhas registradas & Restrições do pipeline & A consolidar \\
+Integração sensorial & Tópicos e frequências & Estabilidade da cadeia de dados & Funcional em testes parciais; RGB-D simultâneo instável \\
+Execução do SLAM & Logs do RTAB-Map & Continuidade do mapeamento & Aguardando gate RGB-D repetível \\
+Referenciais (TF) & Árvore de transformações & Coerência geométrica & Base configurada; validar durante movimento real \\
+Hardware & Uso de recursos & Consumo de CPU e RAM & Medições sistemáticas ainda pendentes \\
 \hline
 \end{tabular}
 \fonte{Autor (2025).}
 \end{table}
 
-A tabela acima não apresenta resultados experimentais finais; ela define apenas o formato de organização que será preenchido após a validação dos artefatos de teste.
-
-\section{Perspectiva de Discussão}
-
-A discussão parcial parte da hipótese de que a viabilidade do SLAM visual embarcado não depende apenas da capacidade de processamento do Raspberry Pi. A estabilidade do sistema também depende da qualidade da odometria, da consistência das transformações, da sincronização entre fluxos sensoriais e da configuração do RTAB-Map. Por isso, a análise final deverá relacionar falhas de mapeamento não apenas ao algoritmo de SLAM, mas ao conjunto integrado de hardware e software.
-
-Funcionalidades de navegação completa, como planejamento de trajetórias com Nav2, permanecem como continuidade possível após a estabilização do mapeamento e da localização. Nesta versão do trabalho, elas não substituem a avaliação principal do pipeline de SLAM embarcado.
+A análise conjunta dessas evidências ainda não permite afirmar uma validação final do SLAM visual embarcado. Ela permite, porém, delimitar os principais riscos técnicos e orientar as próximas baterias de teste: estabilizar o RGB-D simultâneo, registrar perda de pose, consolidar mapas e medir o uso de recursos durante execuções prolongadas.
