@@ -116,7 +116,7 @@ A integração da câmera RGB-D (Kinect v1) exigiu a configuração de regras de
     \fonte{Autor (2025).}
 \end{figure}
 
-Um dos principais desafios do uso de vSLAM em SBCs (\textit{Single Board Computers}) é a sobrecarga da CPU e do barramento USB durante a aquisição de imagens. Conforme demonstra a Figura \ref{fig:hz_local}, em testes isolados de aquisição, o sistema atingiu a taxa nominal de aproximadamente 30.03 Hz. No entanto, a manutenção dessa taxa de forma sincronizada para fluxos simultâneos de RGB e profundidade revelou-se instável durante a execução conjunta de outros nós do sistema, evidenciando a necessidade de otimização no transporte de dados para evitar perdas de quadros que degradem a qualidade do SLAM.
+Um dos principais desafios do uso de vSLAM em SBCs (\textit{Single Board Computers}) é a sobrecarga da CPU e do barramento USB durante a aquisição de imagens. Conforme demonstra a Figura \ref{fig:hz_local}, em testes isolados de aquisição, o sistema atingiu a taxa nominal de aproximadamente 30.03 Hz. Durante a validação incremental, a manutenção dessa taxa para fluxos simultâneos de RGB e profundidade apresentou instabilidades em algumas baterias e melhora em execuções posteriores de longa duração, evidenciando a necessidade de registrar a estabilidade do transporte de dados antes de tratar o SLAM como validado.
 
 \begin{figure}[H]
     \centering
@@ -213,8 +213,8 @@ O desenvolvimento do protótipo físico atingiu o objetivo de estabelecer um MVP
 
 As principais limitações identificadas nesta etapa, que consolidam os desafios do Trabalho de Conclusão de Curso II (TCC II), incluem:
 \begin{itemize}
-    \item \textbf{Estabilidade do Sensor RGB-D:} A aquisição simultânea de dados de imagem e profundidade no Kinect v1 via USB 2.0 do Raspberry Pi apresenta instabilidades aleatórias de sincronização e queda de taxa de quadros, constituindo um dos principais gargalos técnicos do projeto;
-    \item \textbf{SLAM Embarcado:} A execução estável de algoritmos de mapeamento visual no Raspberry Pi requer otimizações rigorosas para evitar a saturação da CPU, o que impacta diretamente na frequência de atualização do mapa;
+    \item \textbf{Estabilidade do Sensor RGB-D:} A aquisição simultânea de dados de imagem e profundidade no Kinect v1 via USB 2.0 do Raspberry Pi foi identificada como um ponto sensível do projeto, exigindo validação repetível antes dos testes de mapeamento;
+    \item \textbf{SLAM Embarcado:} A execução estável de algoritmos de mapeamento visual no Raspberry Pi requer otimizações rigorosas para evitar saturação de recursos, o que pode impactar diretamente a frequência de atualização do mapa;
     \item \textbf{Autonomia de Navegação:} Devido às restrições de processamento, a pilha de navegação (\textit{Nav2}) para planejamento de trajetória é tratada como continuidade futura, priorizando-se nesta fase a estabilização da localização e do mapeamento.
 \end{itemize}
 
