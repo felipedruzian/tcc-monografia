@@ -1,6 +1,6 @@
-Este capítulo detalha o estado atual de desenvolvimento do protótipo físico do robô de serviço proposto neste trabalho. A construção deste protótipo corresponde à materialização parcial do artefato definido na metodologia, especificamente na Etapa 2 da \textit{Design Science Research} (DSR), voltada ao desenvolvimento e modelagem da solução. Enquanto o protótipo simulado permanece em fase de concepção, o foco desta etapa concentrou-se em obter uma plataforma física funcional, capaz de integrar atuadores, sensores e comunicação em rede.
+Este capítulo detalha o estado atual de desenvolvimento do protótipo físico do robô de serviço proposto neste trabalho. A construção deste protótipo corresponde à materialização do artefato definido na metodologia, especificamente na Etapa 2 da \textit{Design Science Research} (DSR), voltada ao desenvolvimento e integração da solução. O foco desta etapa concentrou-se em obter uma plataforma física funcional, capaz de integrar atuadores, sensores, comunicação serial, ROS 2 e aquisição de dados RGB-D para posterior execução do pipeline de SLAM visual embarcado.
 
-O propósito central do protótipo físico, na atual fase da pesquisa, é mitigar os riscos do projeto ao assegurar uma base realista e operacional para os experimentos previstos na continuação do trabalho. O artefato deve viabilizar, em etapa posterior, a comparação entre diferentes algoritmos e configurações de sensores, bem como a confrontação entre os resultados obtidos no hardware real e no ambiente simulado. Assim, ainda que um sistema completo de navegação autônoma não tenha sido alcançado nesta fase, consolidou-se uma infraestrutura de hardware e software suficiente para a realização dos testes planejados.
+O propósito central do protótipo físico é mitigar os riscos do projeto ao assegurar uma base realista e operacional para os experimentos de mapeamento. O artefato deve viabilizar a avaliação do RTAB-Map em hardware restrito, a observação da estabilidade dos tópicos e transformações, e a análise de ajustes de odometria e fusão sensorial. Assim, ainda que um sistema completo de navegação autônoma não tenha sido alcançado nesta fase, consolidou-se uma infraestrutura de hardware e software suficiente para a realização dos testes de SLAM embarcado planejados.
 
 \section{Objetivos do Protótipo Físico nesta Etapa}
 
@@ -9,12 +9,12 @@ Nesta fase de desenvolvimento, os objetivos do protótipo físico foram delibera
 \begin{itemize}
     \item Implementação do chassi com seus componentes principais, incluindo os motores do chassi reaproveitado, o microcontrolador responsável pela interface com hardware (camada de controle de atuadores), a unidade de processamento de alto nível (Raspberry) e os sensores (Kinect e IMU).
     \item Assegurar a movimentação confiável do robô, permitindo a validação do circuito de potência, da ponte H e do \textit{firmware} responsável pelo controle dos motores;
-    \item Viabilizar a leitura contínua dos dados da unidade de medição inercial (IMU) e estabelecer o fluxo de publicação desses dados no ambiente \textit{Robot Operating System} (ROS), incluindo a transmissão pela rede local para uma estação de trabalho;
-    \item Realizar testes preliminares de integração da câmera RGB-D com o ROS, preparando a infraestrutura para a futura execução de algoritmos de vSLAM;
-    \item Comprovar a viabilidade técnica da arquitetura híbrida (embarcada/desembarcada), na qual parte do processamento pode ser transferida para um computador externo conectado à mesma rede local.
+    \item Viabilizar a leitura contínua dos dados da unidade de medição inercial (IMU) e estabelecer o fluxo de publicação desses dados no ambiente \textit{Robot Operating System} (ROS 2);
+    \item Realizar testes preliminares de integração da câmera RGB-D com o ROS 2, preparando a infraestrutura para a execução do RTAB-Map;
+    \item Validar a organização dos tópicos, transformações e fluxos de dados necessários para avaliação do SLAM visual embarcado.
 \end{itemize}
 
-Dessa forma, ainda que um pipeline completo de SLAM em tempo real e a navegação autônoma não tenham sido efetivamente implementados, consolidou-se a infraestrutura necessária para que essas etapas possam ser abordadas com menor incerteza na continuidade do projeto.
+Dessa forma, ainda que a navegação autônoma completa não tenha sido integrada, consolidou-se a infraestrutura necessária para executar e avaliar o mapeamento visual no próprio robô físico.
 
 \section{Arquitetura Física do Protótipo}
 
@@ -28,7 +28,7 @@ Do ponto de vista físico, o protótipo consiste em um robô móvel que integra 
     Elaborado pelo autor (2025).
 \end{figure}
 
-A organização do sistema segue uma abordagem em camadas. Na base, encontra-se o chassi mecânico com o sistema de tração e a fonte de energia primária. Acima, a camada de hardware embarcado gerencia os sinais elétricos, a leitura de sensores e a comunicação serial. Na camada superior, a unidade de processamento executa o sistema operacional e o \textit{middleware} robótico, centralizando a lógica de navegação e a interface de rede.
+A organização do sistema segue uma abordagem em camadas. Na base, encontra-se o chassi mecânico com o sistema de tração e a fonte de energia primária. Acima, a camada de hardware embarcado gerencia os sinais elétricos, a leitura de sensores e a comunicação serial. Na camada superior, a unidade de processamento executa o sistema operacional e o \textit{middleware} robótico, centralizando a lógica de integração, percepção e mapeamento.
 
 \subsection{Plataforma Mecânica Reaproveitada}
 
@@ -63,7 +63,7 @@ O sistema de alimentação foi segmentado para minimizar interferências e garan
 
 \subsection{Unidade de Processamento de Alto Nível}
 
-A unidade de processamento de alto nível é constituída por um computador de placa única (\textit{Single Board Computer} - SBC) Raspberry Pi 4 Model B \cite{raspberrypi2019raspberrypi}, equipado com 8 GB de memória RAM \cite{broadcom2021bcm2711arm}. Essa unidade é responsável por orquestrar os diferentes nós de software, integrar dados de sensores, enviar comandos ao microcontrolador e comunicar-se pela rede com uma estação de trabalho externa.
+A unidade de processamento de alto nível é constituída por um computador de placa única (\textit{Single Board Computer} - SBC) Raspberry Pi 4 Model B \cite{raspberrypi2019raspberrypi}, equipado com 8 GB de memória RAM \cite{broadcom2021bcm2711arm}. Essa unidade é responsável por orquestrar os diferentes nós de software, integrar dados de sensores, enviar comandos ao microcontrolador e executar os componentes centrais do pipeline embarcado.
 
 Quanto ao software de base, optou-se pelo sistema operacional Ubuntu 24.04 LTS (\textit{Noble Numbat} \cite{canonical2024ubuntu2404}), arquitetura \textit{aarch64}, instalado em modo servidor (\textit{headless}). A ausência de interface gráfica de usuário (GUI) libera recursos críticos de CPU e memória para os processos robóticos. Sobre o sistema operacional, foi configurado o ambiente ROS 2 na distribuição Jazzy Jalisco \cite{openrobotics2024jazzy}, responsável pela orquestração dos nós, gerenciamento de mensagens e comunicação entre processos.
 
@@ -72,8 +72,8 @@ No contexto deste protótipo físico, a unidade de processamento hospeda os segu
 \begin{itemize}
     \item \textbf{Interface de Hardware (Drivers):} Execução dos nós responsáveis pela comunicação direta com a câmera RGB-D (via biblioteca \textit{libfreenect} \cite{openkinect2010libfreenect}) e com o microcontrolador (via protocolo serial customizado);
     \item \textbf{Teleoperação:} Pacotes para interfaceamento com dispositivos de entrada (\textit{joystick}), convertendo interações físicas do operador em comandos de velocidade (\textit{Twist}) padronizados;
-    \item \textbf{Infraestrutura de Comunicação:} Configuração do \textit{middleware} Eclipse Cyclone DDS \cite{eclipse2021eclipsecyclonedds} para garantir a transmissão eficiente de dados de alta largura de banda, como imagens e mapas de profundidade, através da rede local;
-    \item \textbf{Pré-processamento de Navegação:} Nós preliminares de visualização e SLAM, configurados para receber os fluxos de dados da câmera e da IMU, preparando o sistema para a execução dos algoritmos de mapeamento.
+    \item \textbf{Infraestrutura de Comunicação:} Configuração do \textit{middleware} Eclipse Cyclone DDS \cite{eclipse2021eclipsecyclonedds} para garantir a comunicação eficiente entre os nós do sistema;
+    \item \textbf{Pré-processamento e SLAM:} Nós preliminares de visualização e mapeamento, configurados para receber os fluxos de dados da câmera, da IMU e da odometria, preparando o sistema para a execução do RTAB-Map.
 \end{itemize}
 
 O dispositivo de controle manual (\textit{joystick}) utilizado nos testes é reconhecido pelo sistema operacional como um dispositivo de entrada padrão. Sua integração ao ROS 2 ocorre por meio de nós específicos que leem o estado dos eixos e botões, publicando-os em tópicos de comando. Essa configuração fornece a base computacional necessária para a operação do robô, permitindo a integração lógica dos componentes que será detalhada na seção a seguir.
@@ -139,13 +139,13 @@ Após a inicialização de todos os drivers e interfaces, foi possível validar 
 
 \section{Validação Experimental Preliminar}
 
-Com a integração física e lógica concluída, foram realizados experimentos funcionais para validar a operabilidade do protótipo. Estes testes tiveram caráter exploratório, visando assegurar que a infraestrutura de \textit{hardware}, a pilha de \textit{software} e a comunicação em rede atendem aos requisitos mínimos para os experimentos de navegação previstos na próxima fase da pesquisa.
+Com a integração física e lógica concluída, foram realizados experimentos funcionais para validar a operabilidade do protótipo. Estes testes tiveram caráter exploratório, visando assegurar que a infraestrutura de \textit{hardware}, a pilha de \textit{software} e a comunicação em rede atendem aos requisitos mínimos para os experimentos de SLAM visual previstos na próxima fase da pesquisa.
 
-\subsection{Validação da Arquitetura Distribuída}
+\subsection{Validação da Comunicação e Observabilidade}
 
-A arquitetura proposta fundamenta-se na capacidade de distribuir o processamento entre o robô embarcado e uma estação de trabalho externa (\textit{offboard}).  Para validar este requisito, o protótipo foi conectado à rede local via Wi-Fi (5 GHz), recebendo endereçamento estático para facilitar a descoberta de nós pelo \textit{middleware} Cyclone DDS. 
+A arquitetura proposta depende de comunicação estável entre os nós do ROS 2 e de observabilidade suficiente para inspecionar os dados gerados pelo robô durante os testes. Para validar este requisito, o protótipo foi conectado à rede local via Wi-Fi (5 GHz), recebendo endereçamento estático para facilitar a descoberta de nós pelo \textit{middleware} Cyclone DDS e permitir o monitoramento externo dos tópicos.
 
-A estabilidade da transmissão de dados foi verificada monitorando a frequência de recebimento na estação remota. A Figura \ref{fig:hz_remoto} exibe o terminal da estação de trabalho recebendo o tópico de profundidade a uma taxa média de 30.04 Hz, idêntica à taxa de geração no robô. Isso confirma que a rede local suporta o tráfego intenso sem perda significativa de pacotes, validando a viabilidade técnica da estratégia de \textit{offloading} para o processamento pesado de SLAM.
+A estabilidade da transmissão de dados foi verificada monitorando a frequência de recebimento na estação de trabalho utilizada para inspeção. A Figura \ref{fig:hz_remoto} exibe o terminal recebendo o tópico de profundidade a uma taxa média de 30.04 Hz, compatível com a taxa de geração no robô. Isso confirma que a infraestrutura de rede permite visualizar e registrar os dados do sistema durante os ensaios, sem transformar o processamento remoto em eixo de avaliação do trabalho.
 
 \begin{figure}[H]
     \centering
@@ -155,7 +155,7 @@ A estabilidade da transmissão de dados foi verificada monitorando a frequência
     \fonte{Autor (2025).}
 \end{figure}
 
-Além da frequência, analisou-se a largura de banda exigida para a transmissão dos dados visuais, um fator crítico em arquiteturas distribuídas. Conforme apresentado na Figura \ref{fig:bandwidth_rede}, a transmissão das imagens brutas (\textit{raw}) de profundidade e RGB consome, respectivamente, cerca de 5.55 MB/s e 6.75 MB/s. Este alto volume de dados justifica a escolha da frequência de 5 GHz para a rede sem fio e evidencia a importância de estratégias de compressão de imagem (tópicos \texttt{/compressed}) caso o ambiente apresente instabilidade de sinal.
+Além da frequência, analisou-se a largura de banda exigida para a transmissão dos dados visuais durante a observação externa. Conforme apresentado na Figura \ref{fig:bandwidth_rede}, a transmissão das imagens brutas (\textit{raw}) de profundidade e RGB consome, respectivamente, cerca de 5.55 MB/s e 6.75 MB/s. Este volume de dados justifica a escolha da frequência de 5 GHz para a rede sem fio e evidencia a necessidade de cautela ao registrar ou visualizar tópicos de imagem durante os experimentos.
 
 \begin{figure}[H]
     \centering
@@ -179,7 +179,8 @@ A validação do sistema de locomoção foi realizada por meio de teleoperação
 
 Durante os ensaios de movimentação em ambiente interno, verificou-se:
 \begin{itemize}
-    \item \textbf{Resposta dos Atuadores:} Os motores responderam de forma proporcional aos comandos, validando a lógica de PWM e o dimensionamento da ponte H;
+    \item \textbf{Resposta dos Atuadores:} Os motores responderam aos comandos enviados pela cadeia \texttt{/cmd\_vel}, mas apresentaram deadband mecânico relevante no chão. Comandos fracos foram suficientes para exercitar a comunicação, porém nem sempre produziram deslocamento perceptível;
+    \item \textbf{Calibração Operacional do Movimento:} Na montagem atual, o avanço visual corresponde a \texttt{linear.x} $<$ \texttt{0}. A bateria de deadband indicou \texttt{linear.x=-0.24} como comando seguro para avanços curtos durante os ensaios de odometria visual, reservando valores mais fortes para ambientes com maior espaço livre;
     \item \textbf{Estabilidade Elétrica:} Não foram observadas quedas de tensão ou reinicializações do microcontrolador durante picos de corrente (partida dos motores), validando o isolamento da alimentação lógica e de potência.
 \end{itemize}
 
@@ -197,7 +198,7 @@ A Figura \ref{fig:rviz_interface} apresenta a interface da estação de trabalho
     \fonte{Autor (2025).}
 \end{figure}
 
-A qualidade da reconstrução 3D do ambiente pode ser observada na Figura \ref{fig:nuvem_pontos}, que exibe a nuvem de pontos gerada a partir do mapa de profundidade. A densidade e a coerência geométrica dos pontos demonstram que o sensor está calibrado e posicionado adequadamente para as tarefas de mapeamento. A captura e transmissão dos dados brutos (\textit{raw data}) mostraram-se robustas, garantindo que o robô pode atuar como um coletor de dados eficiente para processamento remoto.
+A qualidade da reconstrução 3D do ambiente pode ser observada na Figura \ref{fig:nuvem_pontos}, que exibe a nuvem de pontos gerada a partir do mapa de profundidade. A densidade e a coerência geométrica dos pontos demonstram que o sensor está calibrado e posicionado adequadamente para as tarefas de mapeamento. A captura dos dados brutos (\textit{raw data}) mostrou-se robusta, fornecendo a base necessária para a execução do RTAB-Map no protótipo físico.
 
 \begin{figure}[H]
     \centering
@@ -213,9 +214,10 @@ O desenvolvimento do protótipo físico atingiu o objetivo de estabelecer um MVP
 
 As principais limitações identificadas nesta etapa, que definem o escopo do Trabalho de Conclusão de Curso II (TCC II), incluem:
 \begin{itemize}
-    \item \textbf{SLAM Embarcado:} A execução estável de algoritmos de mapeamento visual no Raspberry Pi requer otimizações de software e ajustes finos de parâmetros que não foram concluídos nesta fase;
-    \item \textbf{Autonomia de Navegação:} A pilha de navegação (\textit{Nav2}) para planejamento de trajetória e desvio de obstáculos ainda não foi integrada ao controle de baixo nível;
-    \item \textbf{Simulação:} A modelagem do ``gêmeo digital'' no simulador Gazebo permanece em fase de concepção e será priorizada na próxima etapa para permitir a validação cruzada dos experimentos.
+    \item \textbf{SLAM Embarcado:} A execução estável de algoritmos de mapeamento visual no Raspberry Pi requer otimizações de software e ajustes finos de parâmetros. Os testes recentes já produziram micro-mapeamento controlado, mas ainda não validam SLAM robusto em trajetórias longas;
+    \item \textbf{Odometria de Rodas:} Os sinais de encoder foram úteis como evidência auxiliar de movimento, porém ainda não são confiáveis o suficiente para alimentar o pipeline de VO/RTAB-Map ou filtros de fusão sensorial;
+    \item \textbf{Autonomia de Navegação:} A pilha de navegação (\textit{Nav2}) para planejamento de trajetória e desvio de obstáculos ainda não foi integrada ao controle de baixo nível, permanecendo como continuidade futura após a estabilização do mapeamento e da localização;
+    \item \textbf{Evidências Experimentais:} A consolidação final das métricas de SLAM, incluindo perda de pose, estabilidade do mapa e comparação entre configurações, ainda depende da ampliação dos ensaios controlados e da exportação das visualizações dos melhores bancos RTAB-Map.
 \end{itemize}
 
-Apesar destas lacunas, a contribuição desta etapa é significativa: consolidou-se uma plataforma de baixo custo com \textit{drivers} funcionais, comunicação de rede estável e integração de hardware validada. Esta base sólida reduz substancialmente o risco técnico do projeto e habilita a execução dos experimentos sistemáticos de desempenho de vSLAM propostos na metodologia.
+Apesar destas lacunas, a contribuição desta etapa é significativa: consolidou-se uma plataforma de baixo custo com \textit{drivers} funcionais, comunicação entre componentes validada, sensores operacionais e integração de hardware suficiente para os experimentos de SLAM visual. Esta base reduz substancialmente o risco técnico do projeto e habilita a execução dos testes sistemáticos propostos na metodologia.

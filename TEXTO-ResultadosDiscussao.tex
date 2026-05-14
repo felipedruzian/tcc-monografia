@@ -1,0 +1,69 @@
+Este capítulo consolida os resultados parciais obtidos com o protótipo físico do Talus-Droid durante a etapa de validação experimental. Diferentemente de uma conclusão final de navegação autônoma, a análise apresentada nesta versão tem escopo delimitado: verificar se a plataforma integrada é capaz de adquirir dados RGB-D e inerciais, publicar transformações coerentes, acionar a base móvel e produzir odometria visual e estruturas iniciais de mapa em trajetórias curtas. Assim, os resultados são tratados como evidências de viabilidade e de maturidade incremental do artefato, não como validação definitiva de SLAM robusto.
+
+\section{Linha de base experimental obtida}
+
+A sequência recente de ensaios permitiu estabelecer uma linha de base operacional para execução do RTAB-Map no robô físico. O pipeline mais estável, até esta etapa, utiliza os tópicos locais brutos do Kinect no Raspberry Pi, com imagem RGB, profundidade, informações de câmera e IMU processadas diretamente no robô. A configuração consolidada emprega \texttt{approx\_sync\_max\_interval:=0.025}, iluminação ambiente ligada, inicialização da odometria visual com IMU habilitada por \texttt{wait\_imu\_to\_init:=true} e exclusão da odometria de rodas do pipeline de mapeamento.
+
+A decisão de manter a odometria de rodas fora da cadeia de VO/RTAB-Map é parte do resultado experimental. Embora os encoders tenham fornecido sinais úteis para confirmar movimento físico, sua confiabilidade ainda não é suficiente para serem usados como fonte métrica de odometria. Dessa forma, os ticks dos motores foram empregados como evidência auxiliar de deslocamento e de saúde da atuação, enquanto a estimativa de movimento analisada neste capítulo permanece baseada na odometria visual RGB-D.
+
+\section{Caracterização da atuação open-loop}
+
+Antes de repetir os ensaios de mapeamento com movimento, foi necessário caracterizar o limiar prático de acionamento da base no chão. Os primeiros testes indicaram que comandos de baixa intensidade podiam acionar a cadeia \texttt{/cmd\_vel} -- ponte H -- motores, mas não necessariamente vencer o atrito estático e a carga mecânica do robô. Também se observou que, na montagem atual, o sentido operacional de avanço visual corresponde a valores negativos de velocidade linear, isto é, \texttt{linear.x} $<$ \texttt{0}.
+
+A Tabela \ref{tab:deadband-motores} resume a bateria de deadband realizada com os motores, sem promover os encoders a fonte de odometria. Os resultados indicam que \texttt{linear.x=-0.24} constitui um compromisso seguro para avanços curtos durante os testes de VO, enquanto \texttt{linear.x=-0.28} deve ser reservado para situações com espaço livre e supervisão.
+
+\begin{table}[H]
+\centering
+\caption{Caracterização empírica do deadband de atuação no chão.}
+\label{tab:deadband-motores}
+\begin{tabularx}{\textwidth}{p{1.5cm} p{3.0cm} p{2.4cm} X}
+\hline
+\textbf{Run} & \textbf{Comando} & \textbf{Ticks totais} & \textbf{Interpretação} \\
+\hline
+v151 & \texttt{linear.x=-0.12} & \texttt{L=2, R=2} & Comando ainda abaixo do limiar útil de movimento. \\
+v152 & \texttt{linear.x=-0.16} & \texttt{L=8, R=5} & Início de movimento mensurável, mas ainda pouco robusto. \\
+v153 & \texttt{linear.x=-0.20} & \texttt{L=8, R=10} & Movimento mais confiável, porém ainda conservador. \\
+v154 & \texttt{linear.x=-0.24} & \texttt{L=10, R=10} & Melhor candidato seguro para trajetórias curtas de VO. \\
+v155 & \texttt{linear.x=-0.28} & \texttt{L=12, R=14} & Movimento mais forte, adequado apenas com caminho livre. \\
+\hline
+\end{tabularx}
+\fonte{Autor (2026).}
+\end{table}
+
+Essa caracterização é relevante porque separa dois problemas que poderiam ser confundidos durante a avaliação do SLAM visual: a ausência de deslocamento físico e a perda de rastreamento visual. A partir dessa bateria, os ensaios de VO puderam ser repetidos com comando suficiente para gerar movimento real, mantendo a segurança do ambiente de teste.
+
+\section{Odometria visual e micro-mapeamento RGB-D}
+
+Os ensaios de VO/RTAB-Map evoluíram de validações estacionárias para movimentos curtos no chão. Inicialmente, a cadeia RGB-D, IMU e TF foi validada com a publicação de tópicos de imagem em torno de 30 Hz, IMU em torno de 50 Hz e transformações estáticas entre \texttt{base\_link}, câmera e IMU. Em seguida, a redução do intervalo de sincronização para \texttt{0.025} e o uso de iluminação controlada melhoraram a estabilidade da odometria visual.
+
+A Tabela \ref{tab:vo-rtabmap-runs} apresenta runs representativos dessa evolução. Os resultados mais relevantes para a entrega parcial são v157 e v158, pois combinam movimento físico confirmado por ticks, configuração de atuação já ajustada e bancos RTAB-Map úteis, com baixa incidência de falhas de registro visual. Esses ensaios sustentam a afirmação de que o sistema atingiu uma etapa de micro-mapeamento controlado em trajetórias curtas.
+
+\begin{table}[H]
+\centering
+\caption{Runs representativos da validação de VO/RTAB-Map no chão.}
+\label{tab:vo-rtabmap-runs}
+\begin{tabularx}{\textwidth}{p{1.4cm} p{3.4cm} p{4.0cm} X}
+\hline
+\textbf{Run} & \textbf{Condição} & \textbf{Evidência principal} & \textbf{Leitura} \\
+\hline
+v123 & Movimento curto, sincronização \texttt{0.025} & \texttt{Node=64}, \texttt{Feature=54101}, uma amostra de qualidade zero e nenhuma falha de registro & Indicou que a janela de sincronização de 25 ms era mais adequada que alternativas mais abertas ou mais restritas. \\
+v127 & Reta longa com luz ligada & \texttt{Node=62}, \texttt{Feature=50046}, ticks \texttt{6/6} & Consolidou a importância da iluminação para a qualidade visual dos keyframes. \\
+v157 & Avanço curto com \texttt{linear.x=-0.24} & Ticks \texttt{20/13}, \texttt{Node=54}, \texttt{Feature=47375}, \texttt{quality\_zero=1/201}, sem falhas de registro & Melhor evidência de avanço real com VO limpa após o ajuste de deadband. \\
+v158 & Avanço segmentado com \texttt{linear.x=-0.24} & Ticks \texttt{22/19}, \texttt{Node=59}, \texttt{Feature=45967}, \texttt{quality\_zero=1/207}, sem falhas de registro & Candidato mais representativo para micro-mapeamento com motor ajustado. \\
+v160 & Giro horário pretendido & \texttt{Node=27}, aumento de falhas de registro e contato físico com sofá durante o ensaio & Run descartado da avaliação de qualidade por contaminação experimental e intervenção manual. \\
+\hline
+\end{tabularx}
+\fonte{Autor (2026).}
+\end{table}
+
+A interpretação desses dados deve ser conservadora. Os bancos gerados pelo RTAB-Map e a continuidade da odometria visual demonstram que a cadeia de percepção e mapeamento está funcional em microtrajetórias, mas ainda não comprovam navegação autônoma, fechamento de ciclo robusto ou mapeamento confiável em trajetórias longas. O termo mais adequado para esta etapa é micro-mapeamento RGB-D controlado, pois os resultados dependem de ambiente supervisionado, iluminação favorável, movimentos curtos e parâmetros ajustados.
+
+\section{Discussão das limitações observadas}
+
+Os resultados também delimitam as principais limitações técnicas do protótipo. A primeira delas é a dependência de condições controladas de iluminação e textura. Ensaios com baixa qualidade visual ou movimentos mais agressivos aumentaram a ocorrência de \textit{registration failed} e de amostras com qualidade zero, indicando que o RTAB-Map permanece sensível ao desfoque, à sincronização RGB-D e à quantidade de inliers visuais disponíveis.
+
+A segunda limitação é a ausência temporária de odometria de rodas confiável. Os encoders são úteis para confirmar que houve movimento, mas o conjunto Hall/ímãs ainda requer manutenção e nova validação antes de alimentar filtros de fusão ou a própria cadeia de mapeamento. Essa decisão reduz a ambição do pipeline atual, mas aumenta a validade dos resultados, pois evita introduzir uma fonte de odometria inconsistente na avaliação da VO.
+
+Por fim, a orientação inicial estimada com auxílio da IMU deve ser interpretada com cautela. Como a configuração atual não utiliza magnetômetro, o heading inicial pode ser arbitrário; por isso, a análise de drift deve considerar amostras posteriores à primeira odometria real publicada pelo RTAB-Map. Essa observação explica parte dos sintomas de yaw observados nas baterias e evita interpretá-los diretamente como erro físico acumulado.
+
+Como resultado parcial, conclui-se que o Talus-Droid já possui uma linha de base experimental reproduzível para odometria visual RGB-D e micro-mapeamento em ambiente interno. Essa linha de base ainda é restrita, mas agrega valor à pesquisa por transformar a plataforma em um artefato experimental observável: os próximos passos podem concentrar-se na exportação de figuras dos bancos v157/v158, na repetição em caminho mais livre e, separadamente, na manutenção dos encoders antes de qualquer tentativa de fusão com odometria de rodas.
