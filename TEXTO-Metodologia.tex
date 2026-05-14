@@ -79,9 +79,9 @@ As fases de desenvolvimento são:
     
     \item \textbf{Configuração do Ambiente Embarcado:} Instalação e configuração do Ubuntu Server, ROS 2, drivers da câmera RGB-D, comunicação serial, teleoperação e \textit{middleware} de comunicação.
 
-    \item \textbf{Integração do Pipeline de SLAM:} Organização dos tópicos de imagem, profundidade, IMU, odometria e transformações necessárias para execução do RTAB-Map no Raspberry Pi.
+    \item \textbf{Integração do Pipeline de SLAM:} Organização dos tópicos de imagem, profundidade, IMU, odometria visual e transformações necessárias para execução do RTAB-Map no Raspberry Pi.
     
-    \item \textbf{Ajustes de Odometria e Fusão Sensorial:} Avaliação de inconsistências entre odometria das rodas, IMU e pose estimada pelo SLAM, incluindo a possibilidade de uso de filtro de Kalman estendido para fusão de dados.
+    \item \textbf{Ajustes de Odometria e Fusão Sensorial:} Avaliação de inconsistências entre IMU, pose estimada pelo SLAM e sinais de encoders. A odometria de rodas é tratada como fonte futura de fusão, condicionada à validação mecânica dos encoders.
 \end{itemize}
 
 Simulação e processamento remoto não compõem o eixo de avaliação desta versão do trabalho. Quando mencionados, são tratados apenas como referências de contexto ou possibilidades externas ao escopo atual.
@@ -94,20 +94,20 @@ A etapa final consiste na execução de experimentos controlados no protótipo f
 O protocolo experimental previsto contempla os seguintes cenários:
 
 \begin{enumerate}
-    \item \textbf{Teste de Integração dos Sensores:} Verificação da publicação dos tópicos de câmera RGB-D, IMU, odometria e comandos de velocidade, incluindo frequência média e estabilidade temporal.
+    \item \textbf{Teste de Integração dos Sensores:} Verificação da publicação dos tópicos de câmera RGB-D, IMU, odometria visual e comandos de velocidade, incluindo frequência média e estabilidade temporal.
 
     \item \textbf{Teste de Teleoperação Controlada:} Deslocamento manual do robô em trajetórias simples, como movimentos retilíneos, rotações e percursos curtos em ambiente interno, para observar resposta dos motores e consistência da odometria.
     
     \item \textbf{Execução do RTAB-Map Embarcado:} Avaliação do comportamento do SLAM visual no Raspberry Pi, registrando perda de pose, taxa de atualização, estabilidade do mapa e coerência entre trajetória estimada e movimento observado.
 
-    \item \textbf{Avaliação de Ajustes de Odometria/Fusão Sensorial:} Comparação do comportamento do pipeline antes e depois de ajustes de parâmetros ou fusão entre IMU e odometria das rodas, quando esta etapa estiver concluída.
+    \item \textbf{Avaliação de Ajustes de Odometria/Fusão Sensorial:} Comparação do comportamento do pipeline antes e depois de ajustes de parâmetros, mantendo a odometria de rodas fora do mapeamento enquanto os encoders não estiverem validados.
 \end{enumerate}
 
 Para avaliar o desempenho da arquitetura proposta, serão coletadas métricas computacionais e métricas de qualidade da localização/mapeamento. Além das métricas quantitativas, será realizada avaliação qualitativa do mapa gerado.
 
 \begin{itemize}
     \item \textbf{Métricas de Desempenho Computacional:} Uso de CPU, uso de memória RAM, taxa de publicação dos tópicos de imagem/profundidade, taxa de processamento do SLAM e ocorrência de instabilidade térmica.
-    \item \textbf{Métricas de Consistência do Pipeline:} Frequência de IMU e odometria, continuidade das transformações TF, ausência de falhas de sincronização e estabilidade da pose estimada.
+    \item \textbf{Métricas de Consistência do Pipeline:} Frequência de IMU e odometria visual, continuidade das transformações TF, ausência de falhas de sincronização e estabilidade da pose estimada.
     \item \textbf{Métricas de Qualidade do SLAM:} Ocorrência de perda de rastreamento, coerência visual do mapa, completude de áreas mapeadas, presença de deformações e estabilidade após fechamento de ciclo quando aplicável.
 \end{itemize}
 
