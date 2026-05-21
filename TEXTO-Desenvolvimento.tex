@@ -116,7 +116,7 @@ A integração da câmera RGB-D (Kinect v1) exigiu a configuração de regras de
     \fonte{Autor (2025).}
 \end{figure}
 
-Um dos principais riscos do uso de vSLAM em SBCs (\textit{Single Board Computers}) é a sobrecarga da CPU durante a aquisição de imagens. Para verificar esse gargalo, monitorou-se a taxa de quadros localmente no Raspberry Pi. Conforme demonstra a Figura \ref{fig:hz_local}, o sistema manteve uma taxa estável de aproximadamente 30.03 Hz (limite físico do sensor), comprovando que o hardware selecionado possui capacidade de processamento suficiente para a etapa de aquisição de dados sem perda de \textit{frames}.
+Um dos principais riscos do uso de vSLAM em SBCs (\textit{Single Board Computers}) é a sobrecarga da CPU durante a aquisição de imagens. Para verificar esse gargalo, monitorou-se a taxa de quadros localmente no Raspberry Pi. Conforme demonstra a Figura \ref{fig:hz_local}, em testes isolados o sistema manteve uma taxa próxima ao limite físico do sensor, com aproximadamente 30.03 Hz. Esse resultado indica que a etapa de aquisição visual é viável no hardware selecionado, mas não deve ser interpretado sozinho como prova de estabilidade do fluxo RGB-D durante a execução integrada do RTAB-Map em movimento real.
 
 \begin{figure}[H]
     \centering
@@ -180,7 +180,7 @@ A validação do sistema de locomoção foi realizada por meio de teleoperação
 Durante os ensaios de movimentação em ambiente interno, verificou-se:
 \begin{itemize}
     \item \textbf{Resposta dos Atuadores:} Os motores responderam aos comandos enviados pela cadeia \texttt{/cmd\_vel}, mas apresentaram deadband mecânico relevante no chão. Comandos fracos foram suficientes para exercitar a comunicação, porém nem sempre produziram deslocamento perceptível;
-    \item \textbf{Calibração Operacional do Movimento:} Na montagem atual, o avanço visual corresponde a \texttt{linear.x} $<$ \texttt{0}. A bateria de deadband indicou \texttt{linear.x=-0.24} como comando seguro para avanços curtos durante os ensaios de odometria visual, reservando valores mais fortes para ambientes com maior espaço livre;
+    \item \textbf{Calibração Operacional do Movimento:} Na montagem atual, o avanço visual corresponde a \texttt{linear.x} $<$ \texttt{0}. A bateria de deadband indicou \texttt{linear.x=-0.24} como comando seguro para avanços curtos durante os ensaios de odometria visual, reservando valores mais fortes para ambientes com maior espaço livre. Para giros parados curtos, comandos como \texttt{angular.z=0.30} e \texttt{angular.z=1.80} ficaram abaixo do limiar prático, enquanto \texttt{angular.z=3.00} por cerca de 0,7 s produziu o melhor pulso curto observado na bateria mais recente;
     \item \textbf{Estabilidade Elétrica:} Não foram observadas quedas de tensão ou reinicializações do microcontrolador durante picos de corrente (partida dos motores), validando o isolamento da alimentação lógica e de potência.
 \end{itemize}
 
@@ -214,10 +214,10 @@ O desenvolvimento do protótipo físico atingiu o objetivo de estabelecer um MVP
 
 As principais limitações identificadas nesta etapa, que definem o escopo do Trabalho de Conclusão de Curso II (TCC II), incluem:
 \begin{itemize}
-    \item \textbf{SLAM Embarcado:} A execução estável de algoritmos de mapeamento visual no Raspberry Pi requer otimizações de software e ajustes finos de parâmetros. Os testes recentes já produziram micro-mapeamento controlado, mas ainda não validam SLAM robusto em trajetórias longas;
+    \item \textbf{SLAM Embarcado:} A execução estável de algoritmos de mapeamento visual no Raspberry Pi requer otimizações de software e ajustes finos de parâmetros. Os testes recentes já produziram micro-mapeamento controlado e odometria visual útil em avanços curtos, mas ainda não validam SLAM robusto em trajetórias longas;
     \item \textbf{Odometria de Rodas:} Os sinais de encoder foram úteis como evidência auxiliar de movimento, porém ainda não são confiáveis o suficiente para alimentar o pipeline de VO/RTAB-Map ou filtros de fusão sensorial;
     \item \textbf{Autonomia de Navegação:} A pilha de navegação (\textit{Nav2}) para planejamento de trajetória e desvio de obstáculos ainda não foi integrada ao controle de baixo nível, permanecendo como continuidade futura após a estabilização do mapeamento e da localização;
-    \item \textbf{Evidências Experimentais:} A consolidação final das métricas de SLAM, incluindo perda de pose, estabilidade do mapa e comparação entre configurações, ainda depende da ampliação dos ensaios controlados e da exportação das visualizações dos melhores bancos RTAB-Map.
+    \item \textbf{Evidências Experimentais:} A consolidação final das métricas de SLAM, incluindo perda de pose, estabilidade do mapa e comparação entre configurações, ainda depende da ampliação dos ensaios controlados e da exportação das visualizações dos melhores bancos RTAB-Map. A primeira abertura do Kinect após longo período inativo também deve receber pré-aquecimento ou tentativa repetida antes de ser considerada evidência experimental.
 \end{itemize}
 
 Apesar destas lacunas, a contribuição desta etapa é significativa: consolidou-se uma plataforma de baixo custo com \textit{drivers} funcionais, comunicação entre componentes validada, sensores operacionais e integração de hardware suficiente para os experimentos de SLAM visual. Esta base reduz substancialmente o risco técnico do projeto e habilita a execução dos testes sistemáticos propostos na metodologia.

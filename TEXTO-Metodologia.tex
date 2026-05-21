@@ -111,4 +111,6 @@ Para avaliar o desempenho da arquitetura proposta, serão coletadas métricas co
     \item \textbf{Métricas de Qualidade do SLAM:} Ocorrência de perda de rastreamento, coerência visual do mapa, completude de áreas mapeadas, presença de deformações e estabilidade após fechamento de ciclo quando aplicável.
 \end{itemize}
 
+Nas baterias mais recentes, o protocolo experimental também passou a incluir procedimentos operacionais de controle de validade: verificação prévia de temperatura, disco e disponibilidade de dispositivos no Raspberry Pi; pré-aquecimento ou nova tentativa de abertura do Kinect quando a primeira inicialização falha após longos períodos inativos; registro separado de runs estacionários, runs com atuação open-loop e runs contaminados por contato físico ou intervenção manual; e consulta direta aos bancos do RTAB-Map quando os resumos automáticos apresentam divergências. Esses cuidados reduzem o risco de interpretar falhas do procedimento de execução, de inicialização ou de ambiente como falhas do algoritmo de mapeamento.
+
 Os resultados quantitativos e evidências visuais serão consolidados no Capítulo \ref{cap-resultados-discussao}. Quando uma métrica ainda depender de coleta experimental, ela será explicitamente marcada como pendente, evitando conclusões antecipadas.

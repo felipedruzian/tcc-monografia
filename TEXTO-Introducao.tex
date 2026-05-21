@@ -8,6 +8,8 @@ O foco atual do Trabalho de Conclusão de Curso II é a validação prática do 
 
 A pesquisa adota a metodologia \textit{Design Science Research} (DSR), pois o trabalho envolve a construção, refinamento e avaliação de um artefato tecnológico em um contexto aplicado \cite{hevner2004designscienceinformation, dresch2015distinctiveanalysiscase}. O artefato avaliado é a própria plataforma robótica integrada, composta por hardware, sensores e software de navegação. A contribuição esperada não está apenas no protótipo físico, mas também na documentação do processo de integração, na definição de um protocolo experimental mínimo e na análise das limitações encontradas ao executar SLAM visual em uma plataforma embarcada de baixo custo.
 
+Na versão parcial atual, o trabalho já reúne evidências experimentais obtidas no robô físico. As baterias recentes indicaram que o pipeline RGB-D com RTAB-Map é capaz de permanecer estável com o robô parado, produzir odometria visual útil em avanços curtos e gerar bancos de micro-mapeamento sob condições controladas de iluminação, sincronização e movimento. Ao mesmo tempo, os mesmos ensaios mostram que a plataforma ainda não sustenta a afirmação de navegação autônoma completa: a odometria de rodas permanece fora do pipeline, giros e movimentos longos ainda degradam a qualidade visual, e algumas falhas de inicialização do Kinect exigem procedimento de pré-aquecimento ou repetição antes da coleta principal.
+
 Nesse contexto, a investigação será norteada pela seguinte questão de pesquisa:
 
 \begin{center}

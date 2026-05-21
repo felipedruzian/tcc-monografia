@@ -2,7 +2,7 @@ Este capítulo consolida os resultados parciais obtidos com o protótipo físico
 
 \section{Linha de base experimental obtida}
 
-A sequência recente de ensaios permitiu estabelecer uma linha de base operacional para execução do RTAB-Map no robô físico. O pipeline mais estável, até esta etapa, utiliza os tópicos locais brutos do Kinect no Raspberry Pi, com imagem RGB, profundidade, informações de câmera e IMU processadas diretamente no robô. A configuração consolidada emprega \texttt{approx\_sync\_max\_interval:=0.025}, iluminação ambiente ligada, inicialização da odometria visual com IMU habilitada por \texttt{wait\_imu\_to\_init:=true} e exclusão da odometria de rodas do pipeline de mapeamento.
+A sequência recente de ensaios permitiu estabelecer uma linha de base operacional para execução do RTAB-Map no robô físico. O pipeline mais estável, até esta etapa, utiliza os tópicos locais brutos do Kinect no Raspberry Pi, com imagem RGB, profundidade, informações de câmera e IMU processadas diretamente no robô. A configuração consolidada emprega \texttt{approx\_sync\_max\_interval:=0.025}, iluminação ambiente ligada, inicialização da odometria visual com IMU habilitada por \texttt{wait\_imu\_to\_init:=true} e exclusão da odometria de rodas do pipeline de mapeamento. A bateria posterior de 21/05/2026 manteve essa leitura geral, acrescentando uma verificação de estabilidade parado, uma nova repetição de avanços curtos e uma calibração mínima de giros open-loop.
 
 A decisão de manter a odometria de rodas fora da cadeia de VO/RTAB-Map é parte do resultado experimental. Embora os encoders tenham fornecido sinais úteis para confirmar movimento físico, sua confiabilidade ainda não é suficiente para serem usados como fonte métrica de odometria. Dessa forma, os ticks dos motores foram empregados como evidência auxiliar de deslocamento e de saúde da atuação, enquanto a estimativa de movimento analisada neste capítulo permanece baseada na odometria visual RGB-D.
 
@@ -57,6 +57,32 @@ v160 & Giro horário pretendido & \texttt{Node=27}, aumento de falhas de registr
 \end{table}
 
 A interpretação desses dados deve ser conservadora. Os bancos gerados pelo RTAB-Map e a continuidade da odometria visual demonstram que a cadeia de percepção e mapeamento está funcional em microtrajetórias, mas ainda não comprovam navegação autônoma, fechamento de ciclo robusto ou mapeamento confiável em trajetórias longas. O termo mais adequado para esta etapa é micro-mapeamento RGB-D controlado, pois os resultados dependem de ambiente supervisionado, iluminação favorável, movimentos curtos e parâmetros ajustados.
+
+\section{Revisão experimental de 21/05/2026}
+
+Uma nova bateria curta foi executada em 21/05/2026 para verificar se a linha de base anterior se mantinha após ajustes de atuação e para responder se ainda havia uma alternativa prática de melhoria sem promover os encoders Hall a fonte oficial de odometria. Antes dos testes, o Raspberry Pi estava ligado havia aproximadamente 15 dias, sem indícios de sobrecarga térmica ou de armazenamento. O primeiro run planejado, v161, falhou ao abrir o Kinect, mas uma tentativa mínima posterior abriu o dispositivo normalmente; por isso, essa falha foi interpretada como transiente de primeira abertura do Kinect/libfreenect após longo período inativo, e não como regressão definitiva do pipeline RGB-D.
+
+A Tabela \ref{tab:vo-openloop-20260521} apresenta os runs mais representativos dessa bateria. A leitura principal é que a odometria visual se manteve estável com o robô parado, funcionou de forma útil em avanços curtos, mas continuou intermitente quando a qualidade visual cai. Em paralelo, os testes motor-only reforçaram que a base responde melhor a comandos lineares curtos já calibrados do que a giros parados de baixa intensidade.
+
+\begin{table}[H]
+\centering
+\caption{Runs representativos da bateria de odometria visual e atuação open-loop de 21/05/2026.}
+\label{tab:vo-openloop-20260521}
+\begin{tabularx}{\textwidth}{p{1.4cm} p{3.3cm} p{4.3cm} X}
+\hline
+\textbf{Run} & \textbf{Objetivo} & \textbf{Evidência principal} & \textbf{Leitura} \\
+\hline
+v166 & Robô parado, drift da VO & \texttt{quality\_median=278}, nenhuma falha de registro, banco com \texttt{Node=35} e \texttt{Feature=30929}, ticks \texttt{0/0} & Melhor evidência da rodada de que Kinect/RTAB-Map não deriva de forma relevante depois da inicialização. \\
+v167 & Avanço curto com \texttt{linear.x=-0.24} por 2 s & \texttt{quality\_median=248}, nenhuma falha de registro, banco com \texttt{Node=33}, ticks \texttt{8/9} e deslocamento estimado de cerca de 0,095 m & Odometria visual em movimento curto funcionou de forma útil. \\
+v168 & Repetição do avanço curto & \texttt{quality\_median=220}, uma falha de registro, banco com \texttt{Node=22}, ticks \texttt{9/11} e deslocamento estimado de cerca de 0,067 m & Repetiu o movimento com qualidade menor, reforçando a sensibilidade a cena e sincronização. \\
+v172 & Avanço motor-only com \texttt{linear.x=-0.24} por 2,5 s & Segmento principal com ticks \texttt{L=13, R=14}; total \texttt{L=13, R=16} & Melhor evidência da rodada para avanço open-loop curto e quase simétrico. \\
+v175 & Giro motor-only com \texttt{angular.z=3.00} por 0,7 s & Segmento principal com ticks \texttt{L=3, R=4}; total \texttt{L=4, R=4} & Melhor referência atual para pulso curto de giro parado; comandos menores ficaram abaixo do limiar prático. \\
+\hline
+\end{tabularx}
+\fonte{Autor (2026).}
+\end{table}
+
+Essa revisão reforça a conclusão parcial do trabalho: o sistema ainda não possui odometria robusta para navegação autônoma, mas possui microdeslocamentos calibráveis e uma odometria visual RGB-D funcional sob condições controladas. Para novas coletas, o protocolo deve incluir pré-aquecimento do Kinect, cena iluminada e texturizada, uso de tópicos raw locais, análise do drift apenas após a primeira odometria real e separação entre runs de qualidade de SLAM e runs de stress mecânico.
 
 \section{Discussão das limitações observadas}
 
