@@ -1,0 +1,30 @@
+Este capítulo apresenta a estrutura prevista para consolidação dos resultados experimentais do TCC II. Como os testes com o robô físico ainda estão em andamento, os resultados quantitativos e evidências finais serão incorporados conforme a execução dos experimentos for concluída. Para evitar conclusões antecipadas, os pontos que ainda dependem de coleta ou análise são explicitamente marcados como pendentes.
+
+\section{Estado atual da integração}
+
+Até esta etapa, a plataforma física foi estabelecida como o principal ambiente de validação do trabalho. O robô integra o Raspberry Pi, a câmera RGB-D, a comunicação com o Arduino Nano e os componentes necessários para publicação de dados no ROS 2. A avaliação atual concentra-se em verificar se a cadeia de tópicos, odometria, transformações de coordenadas e execução do RTAB-Map permanece estável durante testes reais de movimentação.
+
+\noindent\textbf{Evidência pendente:} consolidar logs e registros dos testes atuais com o robô físico.
+
+\section{Critérios de avaliação}
+
+Os resultados serão discutidos a partir de critérios compatíveis com o objetivo do trabalho:
+
+\begin{itemize}
+    \item estabilidade da estimativa de pose durante o deslocamento;
+    \item ocorrência de perda de pose ou falhas de rastreamento;
+    \item coerência entre odometria, IMU e transformações publicadas no ROS 2;
+    \item qualidade visual e estrutural do mapa gerado;
+    \item taxa de processamento observada durante a execução;
+    \item impacto de ajustes no pipeline, incluindo a fusão de odometria das rodas e IMU.
+\end{itemize}
+
+\noindent\textbf{Resultado a consolidar:} definir tabela comparativa com métricas antes e depois dos ajustes de odometria/fusão sensorial.
+
+\section{Discussão preliminar}
+
+A principal hipótese técnica desta etapa é que a viabilidade do SLAM visual embarcado não depende apenas da capacidade bruta de processamento do Raspberry Pi, mas também da qualidade da odometria, da consistência das transformações entre referenciais e da configuração dos parâmetros do RTAB-Map. Assim, a análise deve considerar tanto métricas computacionais quanto evidências de estabilidade do sistema integrado.
+
+O uso de funcionalidades de navegação completas, como planejamento com Nav2, permanece como continuidade possível após a consolidação do mapeamento e da localização. Nesta versão do trabalho, porém, a navegação completa não substitui a avaliação principal do pipeline de SLAM embarcado.
+
+\noindent\textbf{Pendente:} inserir discussão baseada nos testes finais e nas evidências documentadas.
