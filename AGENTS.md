@@ -13,7 +13,7 @@ Este repositorio e a frente textual do TCC. Evite mudancas amplas sem plano clar
 - Skill de apoio: `trello-tcc`.
 - Edicoes vivas de cards devem usar o MCP `trello` no OpenCode.
 - Slash command `/trello-sync` apenas exporta cache read-only para o Obsidian; nao use como caminho de edicao.
-- Cache Obsidian: `/home/felip/syncthing/vault/Facul/TCC/TCC2-Kanban.md`.
+- Cache Obsidian: `/home/felip/syncthing/vault/10 Projetos/TCC Talus-Droid/TCC2-Kanban.md`.
 - Script canonico do cache: `/home/felip/repos/scripts/trello-sync.py`.
 - Credenciais ficam fora do git em `/home/felip/repos/.secrets/trello.env`; nunca imprimir chaves/tokens.
 
