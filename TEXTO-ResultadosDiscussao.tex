@@ -1,0 +1,43 @@
+Este capítulo organiza o estado da validação experimental da plataforma robótica e as discussões parciais sobre o pipeline de SLAM visual embarcado no robô físico. A análise considera as restrições de processamento do Raspberry Pi, a estabilidade dos fluxos sensoriais e os pontos que ainda precisam de evidência antes de uma conclusão quantitativa definitiva.
+
+\section{Análise do Pipeline Sensorial e o Desafio da Sincronização}
+
+A integração dos sensores no Raspberry Pi 4 sob o ROS 2 Jazzy permitiu observar comportamentos críticos para a viabilidade do SLAM visual. Embora testes isolados tenham indicado funcionamento de IMU, odometria e aquisição do Kinect, a execução simultânea de RGB e profundidade precisou ser tratada como ponto de validação específico.
+
+A aquisição sincronizada de dados RGB e profundidade do Kinect v1 constitui um dos principais ``gates'' técnicos do projeto. Em baterias anteriores, observaram-se instabilidades na publicação simultânea dos tópicos; em execuções mais recentes, o nó do Kinect manteve os dois fluxos ativos por períodos mais longos. Essa evolução precisa ser consolidada em ensaios com RTAB-Map, pois o mapeamento depende da correspondência temporal entre imagem, profundidade e demais referenciais.
+
+\section{Evidências Experimentais e Discussão}
+
+As evidências a consolidar durante os ensaios no ambiente de teste são organizadas em quatro grupos:
+
+\begin{enumerate}
+    \item \textbf{Estabilidade de Integração:} análise da frequência e latência dos tópicos de percepção antes e durante a carga de processamento do SLAM.
+    \item \textbf{Desempenho da Odometria e Transformações:} avaliação da consistência entre a odometria das rodas, os dados da IMU e as transformações de coordenadas (TF).
+    \item \textbf{Qualidade do Mapeamento:} inspeção visual e geométrica dos mapas gerados pelo RTAB-Map, identificando deformações ou falhas de continuidade.
+    \item \textbf{Limitações de Hardware:} registro de ocorrências de perda de rastreamento visual causadas por quedas de taxa de quadros ou saturação de CPU.
+\end{enumerate}
+
+A discussão parcial indica que, para hardware restrito, a viabilidade do SLAM não depende apenas do algoritmo, mas da robustez da cadeia de aquisição de dados. O histórico de instabilidade do sensor RGB-D e a necessidade de confirmar sua estabilidade sob carga atuam como fatores limitantes para a construção de mapas em trajetórias longas.
+
+\section{Consolidação dos Resultados}
+
+O estado atual das observações e pendências é sintetizado na Tabela \ref{tab:consolidacao-resultados}.
+
+\begin{table}[H]
+\centering
+\caption{Consolidação parcial das observações experimentais.}
+\label{tab:consolidacao-resultados}
+\begin{tabular}{p{3.1cm} p{3.3cm} p{3.8cm} p{3.5cm}}
+\hline
+\textbf{Cenário} & \textbf{Evidência} & \textbf{Critério analisado} & \textbf{Estado atual} \\
+\hline
+Integração sensorial & Tópicos e frequências & Estabilidade da cadeia de dados & RGB-D recuperado em testes recentes; consolidar sob carga \\
+Execução do SLAM & Logs do RTAB-Map & Continuidade do mapeamento & Smoke inicial; falta bateria longa de mapeamento \\
+Referenciais (TF) & Árvore de transformações & Coerência geométrica & Base configurada; validar durante movimento real \\
+Hardware & Uso de recursos & Consumo de CPU e RAM & Medições sistemáticas ainda pendentes \\
+\hline
+\end{tabular}
+\fonte{Autor (2025).}
+\end{table}
+
+A análise conjunta dessas evidências ainda não permite afirmar uma validação final do SLAM visual embarcado. Ela permite, porém, delimitar os principais riscos técnicos e orientar as próximas baterias de teste: consolidar o RGB-D simultâneo sob carga, registrar perda de pose, consolidar mapas e medir o uso de recursos durante execuções prolongadas.
