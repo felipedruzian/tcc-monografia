@@ -148,7 +148,7 @@ Com base nos mapas de custo, o sistema de navegação atua em dois estágios com
 
 Uma das abordagens mais utilizadas, descrita na arquitetura proposta por \citeonline{marder-eppstein2010officemarathonrobust}, é a simulação de trajetória (\textit{Trajectory Rollout}) ou a Janela Dinâmica (DWA). O algoritmo simula diversos caminhos possíveis para os próximos segundos, considerando as restrições físicas do robô (aceleração máxima), e seleciona aquele que maximiza o progresso em direção ao objetivo enquanto mantém uma distância segura de obstáculos detectados no \textit{costmap} local.
 
-Portanto, no contexto deste trabalho, o sistema de Visual SLAM alimenta o \textit{Navigation Stack} com a estimativa de pose e o mapa, permitindo que os algoritmos de planejamento descritos acima conduzam o robô de forma autônoma.
+Portanto, no contexto deste trabalho, o sistema de Visual SLAM fornece a base necessária para etapas posteriores de navegação, ao estimar a pose e construir o mapa do ambiente. A integração completa com planejadores de trajetória, como os disponibilizados pelo Nav2, permanece como continuidade futura após a estabilização do mapeamento e da localização.
 
 Conclui-se, portanto, que uma arquitetura de robótica de serviço eficiente necessita de um mediador robusto. É preciso um sistema capaz de executar o vSLAM para manter a localização precisa (Seção \ref{sec:visual_slam}), mas que também processe e projete eficientemente as informações 3D para alimentar os \textit{costmaps} 2D exigidos pela pilha de navegação (Seção \ref{sec:navegacao}). É neste contexto que o RTAB-Map se destaca como a solução escolhida para este trabalho.
 
@@ -171,7 +171,7 @@ Segundo \citeonline{labbé2019rtabmapopensourcelidar}, a arquitetura do algoritm
 
 O aspecto crucial desta abordagem para robôs com recursos limitados reside na capacidade de \textbf{recuperação}. Quando o robô retorna a uma área previamente visitada, o algoritmo detecta a similaridade visual e "lembra" dos nós antigos, trazendo-os da LTM de volta para a WM. Isso permite o fechamento de ciclo e a correção do mapa global sem que seja necessário manter todo o histórico do ambiente carregado na memória RAM simultaneamente \cite{labbé2019rtabmapopensourcelidar}.
 
-Além de seu gerenciamento de memória, o RTAB-Map possui módulos de construção de mapas 3D, navegação e integração com a pilha de navegação Nav2 (\textit{Navigation2}). Com esse conjunto, é possível converter o mapa 3D (proveniente da câmera RGB-D) em uma grade de ocupação 2D, permitindo que robôs equipados apenas com câmera executem os algoritmos de navegação padrão, sem a necessidade de um LiDAR (\textit{Light Detection and Ranging}) físico \cite{labbé2019rtabmapopensourcelidar}.
+Além de seu gerenciamento de memória, o RTAB-Map possui módulos de construção de mapas 3D e recursos de integração com pilhas de navegação como o Nav2 (\textit{Navigation2}). Com esse conjunto, é possível converter o mapa 3D proveniente da câmera RGB-D em uma grade de ocupação 2D, permitindo que robôs equipados apenas com câmera forneçam informações compatíveis com algoritmos de navegação padrão, sem a necessidade de um LiDAR (\textit{Light Detection and Ranging}) físico \cite{labbé2019rtabmapopensourcelidar}.
 
 Contudo, embora o gerenciamento de memória do RTAB-Map mitigue o uso de RAM ao longo do tempo, o custo computacional imediato para o processamento das imagens (extração de características e cálculo de profundidade) e a otimização do grafo ainda recai sobre a CPU. Em plataformas embarcadas onde o processador principal também deve gerenciar o sistema operacional, a comunicação de rede e o controle dos motores, essa carga de processamento pode se tornar proibitiva, exigindo uma análise cuidadosa das limitações do hardware.
 
@@ -195,29 +195,25 @@ A utilização de SBCs, como o Raspberry Pi, na robótica móvel apresenta desaf
 
 Portanto, a viabilidade do robô depende de encontrar um equilíbrio entre a precisão do algoritmo (como os parâmetros do RTAB-Map) e a capacidade física do hardware de sustentar essa carga por períodos prolongados \cite{nagarajan2024multiobjectiveoptimizationrtabmap}.
 
-\section{Arquiteturas de Processamento em Robótica}
+\section{Execução Embarcada e Observabilidade do Sistema}
 
-Para mitigar as restrições de hardware apresentadas, o projeto de um sistema robótico deve definir onde o processamento pesado (como o SLAM) será executado. Existem duas abordagens predominantes, cada uma com vantagens e desvantagens distintas que impactam a autonomia e a robustez do sistema.
+Para lidar com as restrições de hardware apresentadas, o projeto de um sistema robótico deve definir quais componentes serão executados no próprio robô e como o seu comportamento será observado durante os testes. Em robôs de baixo custo, a execução embarcada prioriza autonomia e simplicidade operacional, mas exige atenção ao consumo de CPU, à memória, à frequência dos sensores e à estabilidade térmica.
 
-O processamento local prioriza a independência do robô, eliminando a necessidade de infraestrutura externa, mas é limitado pela capacidade computacional embarcada. Por outro lado, o processamento remoto oferece recursos praticamente ilimitados, mas introduz uma dependência crítica da qualidade da conexão de rede \cite{li2021highefficientmultirobot}.
+No processamento embarcado (\textit{onboard computing}), os módulos de percepção, odometria, otimização e publicação de mapas são executados localmente na CPU do robô. Esta abordagem garante maior independência em relação à infraestrutura externa e é coerente com a proposta de uma plataforma de baixo custo, mas impõe sacrifícios práticos: pode ser necessário reduzir resolução, diminuir frequência de atualização, ajustar parâmetros do RTAB-Map ou simplificar etapas de processamento para manter operação em tempo real \cite{canovas2021onboarddynamicrgbd, costa2019characterizingpolybenchgpu}.
 
-Considerando este compromisso (\textit{trade-off}), a decisão de projeto adotada neste trabalho consiste em implementar e avaliar ambas as estratégias. O objetivo é verificar experimentalmente se o ganho de desempenho obtido pelo descarregamento de processamento compensa os riscos de latência da rede em comparação à execução puramente embarcada no Raspberry Pi.
+A observabilidade do sistema, por sua vez, depende de ferramentas externas de monitoramento, como terminais remotos e RViz, que permitem inspecionar tópicos, transformações e mapas durante os ensaios. Essa observação externa não implica transferir o processamento principal do SLAM para outro computador; trata-se de um recurso de depuração, registro e análise do comportamento do robô físico.
 
-No processamento embarcado (\textit{Onboard Computing}), todos os módulos do SLAM (percepção, odometria e otimização) são executados localmente na CPU do robô. Esta abordagem garante autonomia total em relação à infraestrutura de rede, sendo robusta a falhas de conexão \cite{canovas2021onboarddynamicrgbd}.
+Embora arquiteturas de processamento remoto ou \textit{offloading} sejam discutidas na literatura como alternativa para tarefas computacionalmente intensivas \cite{li2021highefficientmultirobot}, elas introduzem dependência de rede, latência variável, perda de pacotes e necessidade de alta largura de banda para fluxos RGB-D \cite{zheng2016multiframegraphmatching}. Por essa razão, nesta versão do trabalho, o \textit{offloading} não é tratado como eixo de validação. O foco recai sobre a execução embarcada no Raspberry Pi e sobre a identificação dos limites práticos dessa escolha.
 
-No entanto, a abordagem \textit{onboard} em hardware de baixo custo exige sacrifícios. Para manter a operação em tempo real, muitas vezes é necessário reduzir a resolução das imagens, diminuir a frequência de atualização do mapa ou simplificar o algoritmo de extração de características, o que pode impactar a precisão final da navegação \cite{canovas2021onboarddynamicrgbd, costa2019characterizingpolybenchgpu}.
-
-O processamento desembarcado, ou \textit{Computation Offloading}, consiste na estratégia de transferir as tarefas computacionalmente intensivas para um servidor remoto ou estação de trabalho (PC), mantendo no robô apenas as funções essenciais de aquisição de dados e atuação nos motores. Esta abordagem permite o uso de algoritmos de SLAM mais sofisticados e mapas mais densos, uma vez que o processamento ocorre em hardware de alto desempenho, poupando a bateria e a CPU do robô \cite{li2021highefficientmultirobot}.
-
-Contudo, o \textit{offloading} introduz novos desafios, principalmente relacionados à rede sem fio. A transmissão de dados RGB-D exige alta largura de banda, e a instabilidade da conexão pode causar latência variável ou perda de pacotes. Conforme alertado por \citeonline{zheng2016multiframegraphmatching}, em cenários de baixa largura de banda, algoritmos de compressão e seleção de quadros tornam-se essenciais para evitar que o atraso na comunicação inviabilize o controle do robô em tempo real.
+Assim, a avaliação do artefato deve considerar não apenas se o mapa é produzido, mas se o pipeline mantém frequência, sincronização e transformações coerentes enquanto opera sob as restrições reais do hardware físico.
 
 \section{Ferramentas de Desenvolvimento}
 
-O desenvolvimento de sistemas robóticos complexos é facilitado por um ecossistema de software que permite a modularização, comunicação e simulação destes sistemas, conforme apresentado nesta seção.
+O desenvolvimento de sistemas robóticos complexos é facilitado por um ecossistema de software que permite modularização, comunicação, visualização e integração de sensores e atuadores, conforme apresentado nesta seção.
 
 O ROS (\textit{Robot Operating System}) atua como um middleware de código aberto, fornecendo serviços que se esperaria de um sistema operacional, como abstração de hardware, controle de dispositivos de baixo nível, implementação de funcionalidades comumente usadas, passagem de mensagens entre processos e gerenciamento de pacotes \cite{quigley2009rosopensource}.
 
-A arquitetura do ROS é baseada em um grafo de computação, onde o processamento ocorre em processos chamados ``nós'' (\textit{nodes}) que podem receber, postar e multiplexar mensagens de sensores, controle, estado, planejamento e atuadores. A comunicação ocorre através de ``tópicos'' (\textit{topics}) para fluxo de dados contínuo ou ``serviços'' (\textit{services}) para requisições síncronas. A Figura \ref{fig:ros_architecture} ilustra a arquitetura de comunicação do ROS, destacando a interação entre nós, tópicos e o mestre (Master), que gerencia o registro de nomes e a busca por parâmetros.
+A arquitetura do ROS é baseada em um grafo de computação, onde o processamento ocorre em processos chamados ``nós'' (\textit{nodes}) que podem receber, postar e multiplexar mensagens de sensores, controle, estado, planejamento e atuadores. A comunicação ocorre através de ``tópicos'' (\textit{topics}) para fluxo de dados contínuo ou ``serviços'' (\textit{services}) para requisições síncronas. No ROS 2, a descoberta e a troca de mensagens são apoiadas por implementações DDS, dispensando o mestre central utilizado no ROS 1. A Figura \ref{fig:ros_architecture} ilustra, de forma geral, a comunicação entre nós e tópicos no ecossistema ROS.
 
 \begin{figure}[H]
     \centering
@@ -229,7 +225,7 @@ A arquitetura do ROS é baseada em um grafo de computação, onde o processament
 
 O ROS simplifica o acesso ao hardware e oferece um vasto repositório de pacotes prontos, como o próprio RTAB-Map, permitindo o desenvolvimento modular e independente de drivers e algoritmos \cite{araujo2023atmosbotpropostamodelagem}.
 
-O Gazebo é um simulador 3D robusto projetado para robótica, capaz de simular populações de robôs, sensores e objetos em um ambiente tridimensional. Ele integra uma \textit{Physics Engine} (como ODE ou Bullet) para simular dinâmica e colisões, e um motor de renderização (OGRE) para gerar dados visuais realistas para as câmeras do robô \cite{koenig2004designuseparadigms}.
+O Gazebo é um simulador 3D robusto projetado para robótica, capaz de simular robôs, sensores e objetos em um ambiente tridimensional. Ele integra uma \textit{Physics Engine} para simular dinâmica e colisões, e um motor de renderização para gerar dados visuais realistas para as câmeras do robô \cite{koenig2004designuseparadigms}.
 
 A arquitetura do Gazebo segue um modelo cliente-servidor, conforme ilustrado na Figura \ref{fig:gazebo_architecture}. O servidor (\textit{gzserver}) executa a física e a geração de dados dos sensores, enquanto o cliente (\textit{gzclient}) fornece a interface gráfica para o usuário. A comunicação com o ROS é realizada através do pacote \texttt{gazebo\_ros\_pkgs}, que permite que o robô simulado publique dados de sensores e receba comandos de velocidade nos mesmos tópicos que o robô real utilizaria, facilitando a transição da simulação para o hardware físico \cite{araujo2023atmosbotpropostamodelagem}.
 
@@ -241,4 +237,4 @@ A arquitetura do Gazebo segue um modelo cliente-servidor, conforme ilustrado na 
     \label{fig:gazebo_architecture}
 \end{figure}
 
-A simulação no Gazebo é uma etapa útil para testar e validar a lógica de navegação e a integração entre componentes em um ambiente seguro e controlado, antes da integração e execução no protótipo físico. Contudo, a simulação não substitui a avaliação no hardware real, especialmente quanto a limitações de driver da câmera RGB-D, ruído real de sensores e desempenho de CPU/GPU em tempo real.
+A simulação no Gazebo é uma ferramenta útil na robótica para testar lógica de navegação e integração entre componentes em ambiente seguro e controlado. Contudo, nesta versão do trabalho, ela não constitui o eixo de validação. A avaliação principal ocorre no hardware real, pois limitações de driver da câmera RGB-D, ruído efetivo dos sensores, comportamento da odometria e desempenho de CPU em tempo real só podem ser observados adequadamente no protótipo físico.
