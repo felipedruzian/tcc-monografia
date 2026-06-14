@@ -91,7 +91,7 @@ Simulação e processamento remoto não compõem o eixo de avaliação desta ver
 
 A etapa final consiste na execução de experimentos controlados no protótipo físico para avaliar o desempenho do artefato e responder à questão de pesquisa. A validação concentra-se na estabilidade do pipeline de SLAM visual embarcado e na capacidade do sistema de produzir dados coerentes para mapeamento em ambiente interno.
 
-O protocolo experimental previsto contempla os seguintes cenários:
+O protocolo experimental executado contemplou os seguintes cenários:
 
 \begin{enumerate}
     \item \textbf{Teste de Integração dos Sensores:} Verificação da publicação dos tópicos de câmera RGB-D, IMU, odometria visual e comandos de velocidade, incluindo frequência média e estabilidade temporal.
@@ -103,7 +103,7 @@ O protocolo experimental previsto contempla os seguintes cenários:
     \item \textbf{Avaliação de Ajustes de Odometria/Fusão Sensorial:} Comparação do comportamento do pipeline antes e depois de ajustes de parâmetros, mantendo a odometria de rodas fora do mapeamento enquanto os encoders não estiverem validados.
 \end{enumerate}
 
-Para avaliar o desempenho da arquitetura proposta, serão coletadas métricas computacionais e métricas de qualidade da localização/mapeamento. Além das métricas quantitativas, será realizada avaliação qualitativa do mapa gerado.
+Para avaliar o desempenho da arquitetura proposta, foram coletadas métricas computacionais e métricas de qualidade da localização/mapeamento. Além das métricas quantitativas, foi realizada avaliação qualitativa do mapa gerado.
 
 \begin{itemize}
     \item \textbf{Métricas de Desempenho Computacional:} Uso de CPU, uso de memória RAM, taxa de publicação dos tópicos de imagem/profundidade, taxa de processamento do SLAM e ocorrência de instabilidade térmica.
@@ -113,4 +113,4 @@ Para avaliar o desempenho da arquitetura proposta, serão coletadas métricas co
 
 Nas baterias mais recentes, o protocolo experimental também passou a incluir procedimentos operacionais de controle de validade: verificação prévia de temperatura, disco e disponibilidade de dispositivos no Raspberry Pi; pré-aquecimento ou nova tentativa de abertura do Kinect quando a primeira inicialização falha após longos períodos inativos; registro separado de runs estacionários, runs com atuação open-loop e runs contaminados por contato físico ou intervenção manual; e consulta direta aos bancos do RTAB-Map quando os resumos automáticos apresentam divergências. Esses cuidados reduzem o risco de interpretar falhas do procedimento de execução, de inicialização ou de ambiente como falhas do algoritmo de mapeamento.
 
-Os resultados quantitativos e evidências visuais serão consolidados no Capítulo \ref{cap-resultados-discussao}. Quando uma métrica ainda depender de coleta experimental, ela será explicitamente marcada como pendente, evitando conclusões antecipadas.
+Os resultados quantitativos e as evidências visuais encontram-se consolidados no Capítulo \ref{cap-resultados-discussao}.

@@ -208,16 +208,8 @@ A qualidade da reconstrução 3D do ambiente pode ser observada na Figura \ref{f
     \fonte{Autor (2025).}
 \end{figure}
 
-\section{Limitações Atuais e Encaminhamentos Futuros}
+\section{Integração Alcançada}
 
-O desenvolvimento do protótipo físico atingiu o objetivo de estabelecer um MVP (\textit{Minimum Viable Product}) funcional de robótica móvel. No entanto, como previsto na metodologia incremental, o sistema encontra-se em estágio intermediário.
+O desenvolvimento do protótipo físico atingiu o objetivo de estabelecer uma plataforma funcional de robótica móvel voltada à pesquisa. A contribuição desta etapa é significativa: consolidou-se uma arquitetura de hardware de baixo custo com \textit{drivers} funcionais, comunicação entre componentes validada, sensores operacionais e integração suficiente para os experimentos de SLAM visual.
 
-As principais limitações identificadas nesta etapa, que definem o escopo do Trabalho de Conclusão de Curso II (TCC II), incluem:
-\begin{itemize}
-    \item \textbf{SLAM Embarcado:} A execução estável de algoritmos de mapeamento visual no Raspberry Pi requer otimizações de software e ajustes finos de parâmetros. Os testes recentes já produziram micro-mapeamento controlado e odometria visual útil em avanços curtos, mas ainda não validam SLAM robusto em trajetórias longas;
-    \item \textbf{Odometria de Rodas:} Os sinais de encoder foram úteis como evidência auxiliar de movimento, porém ainda não são confiáveis o suficiente para alimentar o pipeline de VO/RTAB-Map ou filtros de fusão sensorial;
-    \item \textbf{Autonomia de Navegação:} A pilha de navegação (\textit{Nav2}) para planejamento de trajetória e desvio de obstáculos ainda não foi integrada ao controle de baixo nível, permanecendo como continuidade futura após a estabilização do mapeamento e da localização;
-    \item \textbf{Evidências Experimentais:} A consolidação final das métricas de SLAM, incluindo perda de pose, estabilidade do mapa e comparação entre configurações, ainda depende da ampliação dos ensaios controlados e da exportação das visualizações dos melhores bancos RTAB-Map. A primeira abertura do Kinect após longo período inativo também deve receber pré-aquecimento ou tentativa repetida antes de ser considerada evidência experimental.
-\end{itemize}
-
-Apesar destas lacunas, a contribuição desta etapa é significativa: consolidou-se uma plataforma de baixo custo com \textit{drivers} funcionais, comunicação entre componentes validada, sensores operacionais e integração de hardware suficiente para os experimentos de SLAM visual. Esta base reduz substancialmente o risco técnico do projeto e habilita a execução dos testes sistemáticos propostos na metodologia.
+Esta base reduziu substancialmente os riscos técnicos de integração mecânica e eletrônica, habilitando a execução dos testes sistemáticos propostos na metodologia, cujos resultados, desempenho e limitações de mapeamento serão apresentados em detalhes no Capítulo \ref{cap-resultados-discussao}.
