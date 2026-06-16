@@ -1,145 +1,20 @@
-O desenvolvimento deste Trabalho de Conclusão de Curso I cumpriu o objetivo central de estabelecer as bases teóricas e práticas para a análise de desempenho de algoritmos de Visual SLAM em hardware com recursos limitados. A pesquisa consolidou o entendimento sobre as restrições de processamento embarcado e definiu a arquitetura de solução baseada na metodologia \textit{Design Science Research} (DSR).
+Este trabalho cumpriu seu objetivo principal ao desenvolver, integrar e avaliar uma plataforma robótica física de baixo custo voltada à execução de algoritmos de SLAM visual embarcado. A pesquisa demonstrou, na prática, as viabilidades e os limites de um pipeline robótico executado sobre hardware computacional restrito, como o Raspberry Pi, conjugado a sensores de baixo custo, como a câmera Kinect RGB-D e a IMU MPU-6050.
 
-No que tange à execução temporal do projeto, o cronograma sofreu ajustes estratégicos e administrativos. Conforme justificado no Relatório Parcial, o início das atividades foi postergado devido a trâmites de matrícula e definição de orientação. Esses fatores mantiveram a delimitação do tema em aberto nas semanas iniciais, o que impactou o cumprimento das datas originais de entrega das versões preliminares do texto.
+Diferentemente de pesquisas centradas exclusivamente em simulação, este projeto entregou um protótipo físico funcional capaz de adquirir dados brutos do ambiente, publicar transformações espaciais coerentes no ROS 2, acionar a base móvel e gerar odometria visual em tempo real. Os ensaios experimentais confirmaram que a arquitetura atingiu uma linha de base operacional para o micro-mapeamento, viabilizando a construção de estruturas iniciais de mapas em trajetórias curtas e controladas. 
 
-Entretanto, essa compressão do tempo de escrita foi contrabalançada por uma alteração estratégica no escopo de desenvolvimento. A etapa prevista originalmente como "Revisão Bibliográfica III" foi substituída pela \textbf{implementação antecipada do protótipo físico}. Diferentemente do planejamento inicial, que focaria apenas na modelagem, este trabalho alcançou a integração funcional dos componentes de hardware (chassi, eletrônica de potência e Raspberry Pi) e a configuração da infraestrutura de comunicação do ROS 2. Essa decisão técnica, embora tenha consumido o tempo destinado à revisão bibliográfica adicional, mitigou os riscos de integração de hardware, deixando o TCC II livre para focar puramente em software e experimentos.
+Os resultados técnicos apontaram que, sob condições ideais de iluminação e sincronização de dados (\texttt{approx\_sync\_max\_interval:=0.025}), o sistema manteve o rastreamento visual e processou nuvens de pontos sem perdas críticas de performance no SBC. Por outro lado, a pesquisa identificou limitações substanciais inerentes ao hardware escolhido. A ausência de odometria de rodas confiável (devido à imprecisão dos encoders originais) exigiu que o pipeline operasse exclusivamente com odometria visual e dados inerciais. Essa configuração revelou-se sensível a movimentos mais agressivos e giros fechados, que ocasionalmente provocavam desfoque nas imagens e subsequente perda de pose (\textit{registration failed}).
 
-A Tabela \ref{tab:cronograma_tcc1_executado} apresenta o status final das atividades do TCC I. As linhas em verde indicam etapas concluídas (mesmo que com atraso em relação à data original), enquanto a linha tachada indica a etapa suprimida em favor do desenvolvimento do protótipo (destacado em amarelo).
+Portanto, conclui-se que a execução de SLAM visual em hardware de baixo custo é viável para aplicações de micro-mapeamento e exploração supervisionada, mas ainda impõe desafios severos para alcançar a autonomia completa. O projeto confirmou que gargalos não residem unicamente no processamento (CPU/RAM), mas predominantemente na confiabilidade da percepção visual associada à robustez mecânica do robô.
 
-\begin{table}[htbp]
-    \centering
-    \captionsetup{justification=centering}
-    \caption{Execução do Cronograma de Atividades (TCC-I)}
-    \label{tab:cronograma_tcc1_executado}
-    \renewcommand{\arraystretch}{1.2}
-    \setlength{\tabcolsep}{4pt}
-    \begin{tabularx}{\textwidth}{|>{\raggedright\arraybackslash}p{3.1cm}|
-                                 >{\raggedright\arraybackslash}p{3.4cm}|
-                                 X|
-                                 >{\raggedright\arraybackslash}p{3.4cm}|}
-        \hline
-        \textbf{Fase} & \textbf{Atividade} & \textbf{Descrição} & \textbf{Status} \\
-        \hline
-        \rowcolor[HTML]{C2D69B} % Verde claro
-        Proposta e Regularização
-        & Proposta no template + termos
-        & Adequar ao modelo PPEC, coletar assinaturas digitais e submeter.
-        & Concluído \\
-        \hline
-        \rowcolor[HTML]{C2D69B} % Verde claro
-        Revisão Bibliográfica II
-        & Levantamento dirigido
-        & Reavaliação da seleção inicial de referências e busca de novas referências.
-        & Concluído \\
-        \hline
-        \rowcolor[HTML]{C2D69B} % Verde claro
-        Metodologia e Estrutura
-        & Metodologia + esqueleto teórico
-        & Definir método, métricas e cenários; estruturar seções do referencial.
-        & Concluído \\
-        \hline
-        \sout{Revisão Bibliográfica III}
-        & \sout{Consolidação do referencial}
-        & \sout{Ampliar referências, quadro comparativo e lacunas.}
-        & \sout{Substituída} \\
-        \hline
-        \rowcolor[HTML]{FFF2CC} % Amarelo claro para destaque
-        \textbf{Desenvolvimento do Protótipo}
-        & \textbf{Integração de Hardware e ROS}
-        & \textbf{Montagem do robô, drivers de sensores e validação da telemetria (Atividade Adicional).}
-        & \textbf{Concluído (Novo)} \\
-        \hline
-        \rowcolor[HTML]{C2D69B} % Verde claro
-        Versão Rascunho
-        & Capítulos obrigatórios
-        & Fechar Introdução, Metodologia e Referencial para revisão.
-        & Concluído (com atraso) \\
-        \hline
-        \rowcolor[HTML]{C2D69B} % Verde claro
-        Versão para Banca
-        & Submissão para banca
-        & Ajustes finais e submissão; início dos slides.
-        & Concluído \\
-        \hline
-        Apresentação
-        & Defesa
-        & Apresentação na janela do componente.
-        & A realizar \\
-        \hline
-        Versão Final
-        & Entrega final
-        & Incorporar correções da banca e submeter versão final.
-        & A realizar \\
-        \hline
-    \end{tabularx}
-    \fonte{Elaborado pelo autor.}
-\end{table}
+\section{Trabalhos Futuros}
 
-\section{Planejamento para o Trabalho de Conclusão de Curso II}
+A plataforma consolidada neste trabalho constitui um artefato valioso para experimentações futuras no contexto da robótica acadêmica. Como desdobramentos diretos desta pesquisa, propõem-se os seguintes trabalhos futuros:
 
-Com a plataforma física operacional, o Trabalho de Conclusão de Curso II (TCC II) terá como foco a validação experimental da arquitetura proposta, a finalização do ambiente de simulação e a análise crítica dos dados. O planejamento detalhado das atividades segue abaixo.
+\begin{itemize}
+    \item \textbf{Manutenção e Integração da Odometria de Rodas:} Consolidar a leitura dos encoders físicos e implementar filtros de fusão sensorial (como o \textit{robot\_localization}) combinando a odometria visual, dados inerciais e cinemática de rodas, visando mitigar a perda de rastreamento em giros e trajetórias longas;
+    \item \textbf{Integração da Pilha de Navegação (Nav2):} Uma vez garantida uma odometria robusta, o passo seguinte consiste em integrar o algoritmo de planejamento global e local para que o robô seja capaz de navegar autonomamente pelos mapas 2D construídos;
+    \item \textbf{Descarregamento de Processamento (\textit{Offloading}):} Investigar na prática o ganho de desempenho caso a etapa pesada do SLAM (RTAB-Map) seja transmitida via rede para um servidor externo, deixando o Raspberry Pi responsável apenas pela percepção e navegação de baixo nível;
+    \item \textbf{Avaliação com Sensores Modernos:} Substituir o sensor RGB-D legado (Kinect v1) por câmeras estéreo ou LiDARs de baixo custo para avaliar comparativamente a qualidade do mapa e o alívio computacional.
+\end{itemize}
 
-A primeira etapa consistirá na \textbf{modelagem do protótipo simulado}. Será desenvolvido o modelo do robô no formato URDF (\textit{Universal Robot Description Format}) para garantir que suas propriedades físicas (inércia, atrito, dimensões) correspondam fielmente ao protótipo montado. Paralelamente, será construído um ambiente virtual no simulador Gazebo que replique os desafios de um cenário doméstico, incluindo corredores estreitos e obstáculos dinâmicos, permitindo a validação dos algoritmos em um ambiente controlado antes dos testes em campo.
-
-Na sequência, será realizada a \textbf{configuração avançada da pilha de navegação} (Stack Nav2). Esta etapa envolve o ajuste fino (\textit{tuning}) dos parâmetros do algoritmo de SLAM e dos planejadores de trajetória global e local. O objetivo é otimizar a conversão da nuvem de pontos 3D (gerada pela câmera RGB-D) em mapas de custo 2D, garantindo que o robô consiga desviar de obstáculos com segurança sem sobrecarregar a CPU do Raspberry Pi.
-
-A fase de \textbf{experimentação comparativa} será o núcleo da pesquisa. Serão executados cenários de teste idênticos em duas configurações distintas: (1) processamento totalmente local no robô e (2) processamento distribuído, com o descarregamento (\textit{offloading}) das tarefas pesadas de mapeamento para uma estação externa. Durante esses testes, serão coletadas métricas de consumo de recursos (uso de CPU, memória RAM, temperatura) e métricas de qualidade de navegação (erro de trajetória e completude do mapa).
-
-Por fim, será realizada a \textbf{análise estatística dos dados e a redação final}. Os dados coletados serão tabulados para comparar o desempenho das duas arquiteturas, respondendo à questão de pesquisa sobre a viabilidade técnica do vSLAM em hardware limitado. A monografia será finalizada com a discussão desses resultados, culminando na defesa do trabalho.
-
-O cronograma detalhado para estas atividades é apresentado no Quadro \ref{tab:cronograma_tcc2}.
-
-\begin{table}[htbp]
-    \centering
-    \captionsetup{justification=centering}
-    \caption{Cronograma de Atividades Previsto (TCC-II)}
-    \label{tab:cronograma_tcc2}
-    \renewcommand{\arraystretch}{1.2}
-    \setlength{\tabcolsep}{4pt}
-    \begin{tabularx}{\textwidth}{|>{\raggedright\arraybackslash}p{3.1cm}|
-                                 >{\raggedright\arraybackslash}p{3.4cm}|
-                                 X|
-                                 >{\raggedright\arraybackslash}p{3.4cm}|}
-        \hline
-        \textbf{Fase} & \textbf{Atividade} & \textbf{Descrição} & \textbf{Período Estimado} \\
-        \hline
-        Simulação e Modelagem
-        & Modelagem do Protótipo Simulado
-        & Desenvolvimento do URDF do robô e criação do cenário de testes no Gazebo para validação cruzada.
-        & Mês 1 \\
-        \hline
-        Software de Navegação
-        & Otimização do Stack Nav2
-        & Integração do planejador de trajetória com o mapa do vSLAM e ajuste de parâmetros de custo (inflation radius).
-        & Mês 1-2 \\
-        \hline
-        Experimentação (Cenário 1)
-        & Testes de Processamento Local
-        & Execução de SLAM e navegação inteiramente no Raspberry Pi com coleta de métricas de hardware.
-        & Mês 2 \\
-        \hline
-        Experimentação (Cenário 2)
-        & Testes de Processamento Distribuído
-        & Execução com processamento remoto (Offboard) e análise de impacto da latência de rede.
-        & Mês 3 \\
-        \hline
-        Análise de Dados
-        & Compilação dos Resultados
-        & Comparação das métricas (CPU, RAM, Acurácia) entre os cenários e confronto com a literatura.
-        & Mês 3 \\
-        \hline
-        Escrita da Monografia
-        & Redação Final
-        & Elaboração dos capítulos de resultados, discussão e conclusão final do TCC.
-        & Mês 2-4 \\
-        \hline
-        Defesa
-        & Apresentação Final
-        & Defesa pública do TCC II perante banca examinadora.
-        & Final do Semestre \\
-        \hline
-    \end{tabularx}
-    \fonte{Elaborado pelo autor.}
-\end{table}
-
-A execução deste cronograma permitirá concluir a análise de viabilidade da arquitetura proposta, entregando uma contribuição relevante sobre o uso de sensores visuais em robótica de serviço de baixo custo.
+O Talus-Droid atendeu à proposta metodológica de \textit{Design Science Research}, fornecendo conhecimentos práticos e uma plataforma testável que contribuem diretamente para a democratização da pesquisa em robótica móvel e navegação autônoma em ambientes fechados.
