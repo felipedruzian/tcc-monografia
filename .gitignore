@@ -1,6 +1,7 @@
 # Local agent/runtime artifacts
 .opencode/
 thoughts/
+tmp/
 
 # LaTeX build artifacts
 build/
